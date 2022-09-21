@@ -1,5 +1,9 @@
+import { PrismaClient } from "@prisma/client";
+import { pbkdf2 } from "crypto";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   debug: true,
@@ -18,18 +22,26 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: 1, name: "J Smith", email: "jsmith@example.com" };
+        if (!credentials) return null;
 
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
+        const user = await prisma.admin_users.findUnique({
+          where: { email: credentials?.email.toLowerCase() },
+        });
+        if (!user) return null;
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
+        const hash = await new Promise<Buffer>((resolve, reject) =>
+          pbkdf2(
+            credentials.password,
+            user.salt,
+            10000,
+            64,
+            "sha512",
+            (err, derivedKey) => (err ? reject(err) : resolve(derivedKey))
+          )
+        );
+        if (!hash.equals(user.password)) return null;
+
+        return user;
       },
     }),
   ],

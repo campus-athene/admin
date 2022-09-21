@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin_users {
+  id       Int    @id @default(autoincrement())
+  email    String @unique(map: "email_UNIQUE") @db.VarChar(45)
+  password Bytes  @db.Binary(64)
+  salt     Bytes  @db.Binary(64)
+
+  @@index([email], map: "email_INDEX")
+}
+
+model events {
+  id                    Int       @id @default(autoincrement())
+  title                 String    @db.VarChar(45)
+  registration_deadline DateTime? @db.DateTime(0)
+  date                  DateTime  @db.DateTime(0)
+  image                 String    @db.VarChar(100)
+  clicks                Int       @default(0)
+}
+
+model event_organisers {
+  id               Int     @id @default(autoincrement())
+  name             String  @db.Text
+  description      String  @db.Text
+  logo_img         String  @db.VarChar(250)
+  cover_img        String  @db.VarChar(250)
+  social_website   String? @db.VarChar(250)
+  social_email     String? @db.VarChar(250)
+  social_telephone String? @db.VarChar(250)
+  social_facebook  String? @db.VarChar(250)
+  social_instagram String? @db.VarChar(250)
+  social_twitter   String? @db.VarChar(250)
+  social_linkedin  String? @db.VarChar(250)
+  social_tiktok    String? @db.VarChar(250)
+  social_youtube   String? @db.VarChar(250)
+  social_telegram  String? @db.VarChar(250)
+}
