@@ -1,9 +1,12 @@
 import type { NextPage } from "next";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { Card, CardGroup, Container } from "react-bootstrap";
+import { Button, Card, CardGroup, Container } from "react-bootstrap";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
+
   return (
     <Container>
       <Head>
@@ -16,6 +19,14 @@ const Home: NextPage = () => {
         <h1>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
+
+        <p>
+          {session ? (
+            <Button onClick={() => signOut()}>Abmelden</Button>
+          ) : (
+            <Button onClick={() => signIn()}>Anmelden</Button>
+          )}
+        </p>
 
         <p>
           Get started by editing <code>pages/index.tsx</code>

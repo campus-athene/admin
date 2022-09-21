@@ -1,10 +1,11 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import Script from "next/script";
+import { SessionProvider } from "next-auth/react";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <SessionProvider session={pageProps.session}>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
@@ -20,7 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
         crossOrigin="anonymous"
       />
-    </>
+    </SessionProvider>
   );
 }
 
