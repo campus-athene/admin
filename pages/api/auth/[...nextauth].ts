@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null;
 
-        const user = await prisma.admin_users.findUnique({
+        const user = await prisma.adminUser.findUnique({
           where: { email: credentials?.email.toLowerCase() },
         });
         if (!user) return null;
@@ -45,6 +45,12 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    session: ({ session, token }) => ({
+      ...session,
+      token,
+    }),
+  },
 };
 
 export default NextAuth(authOptions);

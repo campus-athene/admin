@@ -7,25 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admin_users {
+model AdminUser {
   id       Int    @id @default(autoincrement())
   email    String @unique(map: "email_UNIQUE") @db.VarChar(45)
   password Bytes  @db.Binary(64)
   salt     Bytes  @db.Binary(64)
 
   @@index([email], map: "email_INDEX")
+  @@map("admin_users")
 }
 
-model events {
-  id                    Int       @id @default(autoincrement())
-  title                 String    @db.VarChar(45)
-  registration_deadline DateTime? @db.DateTime(0)
-  date                  DateTime  @db.DateTime(0)
-  image                 String    @db.VarChar(100)
-  clicks                Int       @default(0)
+model Event {
+  id                   Int             @id @default(autoincrement())
+  title                String          @db.Text
+  description          String          @db.Text
+  registrationDeadline DateTime?       @map("registration_deadline") @db.DateTime(0)
+  date                 DateTime        @db.DateTime(0)
+  image                String          @db.VarChar(100)
+  clicks               Int             @default(0)
+  organiser            Int
+  eventOrganisers      EventOrganisers @relation("event_organisersToevents", fields: [organiser], references: [id], onUpdate: Restrict, map: "organiser")
+
+  @@index([organiser], map: "organiser_idx")
+  @@map("events")
 }
 
-model event_organisers {
+model EventOrganisers {
   id               Int     @id @default(autoincrement())
   name             String  @db.Text
   description      String  @db.Text
@@ -41,4 +48,7 @@ model event_organisers {
   social_tiktok    String? @db.VarChar(250)
   social_youtube   String? @db.VarChar(250)
   social_telegram  String? @db.VarChar(250)
+  events           Event[] @relation("event_organisersToevents")
+
+  @@map("event_organisers")
 }

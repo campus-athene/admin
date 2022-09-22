@@ -35,9 +35,9 @@ const Home: NextPage = () => {
         <CardGroup>
           <Card>
             <Card.Body>
-              <Card.Title>Documentation &rarr;</Card.Title>
-              <Card.Link href="https://nextjs.org/docs">
-                Find in-depth information about Next.js features and API.
+              <Card.Title>Veranstaltungen &rarr;</Card.Title>
+              <Card.Link href="/event">
+                Veranstaltungen einsehen, erstellen und bearbeiten.
               </Card.Link>
             </Card.Body>
           </Card>
