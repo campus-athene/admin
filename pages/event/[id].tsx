@@ -16,6 +16,8 @@ type Data =
     }
   | { create: true };
 
+const prisma = new PrismaClient();
+
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const idParam = context.params?.id;
 
@@ -24,7 +26,6 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const id = typeof idParam === "string" && Number.parseInt(idParam);
   if (!id) return { notFound: true };
 
-  const prisma = new PrismaClient();
   const event = await prisma.event.findUnique({ where: { id } });
 
   if (!event) return { notFound: true };

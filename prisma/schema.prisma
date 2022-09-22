@@ -18,37 +18,37 @@ model AdminUser {
 }
 
 model Event {
-  id                   Int             @id @default(autoincrement())
-  title                String          @db.Text
-  description          String          @db.Text
-  registrationDeadline DateTime?       @map("registration_deadline") @db.DateTime(0)
-  date                 DateTime        @db.DateTime(0)
-  image                String          @db.VarChar(100)
-  clicks               Int             @default(0)
+  id                   Int            @id @default(autoincrement())
+  title                String         @db.Text
+  description          String         @db.Text
+  registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
+  date                 DateTime       @db.DateTime(0)
+  image                String         @db.VarChar(100)
+  clicks               Int            @default(0)
   organiser            Int
-  eventOrganisers      EventOrganisers @relation("event_organisersToevents", fields: [organiser], references: [id], onUpdate: Restrict, map: "organiser")
+  eventOrganisers      EventOrganiser @relation("event_organisersToevents", fields: [organiser], references: [id], onUpdate: Restrict, map: "organiser")
 
   @@index([organiser], map: "organiser_idx")
   @@map("events")
 }
 
-model EventOrganisers {
-  id               Int     @id @default(autoincrement())
-  name             String  @db.Text
-  description      String  @db.Text
-  logo_img         String  @db.VarChar(250)
-  cover_img        String  @db.VarChar(250)
-  social_website   String? @db.VarChar(250)
-  social_email     String? @db.VarChar(250)
-  social_telephone String? @db.VarChar(250)
-  social_facebook  String? @db.VarChar(250)
-  social_instagram String? @db.VarChar(250)
-  social_twitter   String? @db.VarChar(250)
-  social_linkedin  String? @db.VarChar(250)
-  social_tiktok    String? @db.VarChar(250)
-  social_youtube   String? @db.VarChar(250)
-  social_telegram  String? @db.VarChar(250)
-  events           Event[] @relation("event_organisersToevents")
+model EventOrganiser {
+  id              Int     @id @default(autoincrement())
+  name            String  @db.Text
+  description     String  @db.Text
+  logoImg         String  @map("logo_img") @db.VarChar(250)
+  coverImg        String  @map("cover_img") @db.VarChar(250)
+  socialWebsite   String? @map("social_website") @db.VarChar(250)
+  socialEmail     String? @map("social_email") @db.VarChar(250)
+  socialPhone     String? @map("social_phone") @db.VarChar(250)
+  socialFacebook  String? @map("social_facebook") @db.VarChar(250)
+  socialInstagram String? @map("social_instagram") @db.VarChar(250)
+  socialTwitter   String? @map("social_twitter") @db.VarChar(250)
+  socialLinkedin  String? @map("social_linkedin") @db.VarChar(250)
+  socialTiktok    String? @map("social_tiktok") @db.VarChar(250)
+  socialYoutube   String? @map("social_youtube") @db.VarChar(250)
+  socialTelegram  String? @map("social_telegram") @db.VarChar(250)
+  events          Event[] @relation("event_organisersToevents")
 
   @@map("event_organisers")
 }

@@ -44,9 +44,9 @@ const Home: NextPage = () => {
 
           <Card>
             <Card.Body>
-              <Card.Title>Learn &rarr;</Card.Title>
-              <Card.Link href="https://nextjs.org/learn">
-                Learn about Next.js in an interactive course with quizzes!
+              <Card.Title>Veranstalterprofil &rarr;</Card.Title>
+              <Card.Link href="/profile">
+                Veranstalterprofil bearbeiten
               </Card.Link>
             </Card.Body>
           </Card>
