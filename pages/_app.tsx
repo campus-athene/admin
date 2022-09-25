@@ -1,28 +1,45 @@
-import type { AppProps } from "next/app";
+import { SessionProvider, signOut } from "next-auth/react";
+import { AppProps } from "next/app";
 import Head from "next/head";
-import Script from "next/script";
-import { SessionProvider } from "next-auth/react";
+import { Button, Container, Nav, Navbar } from "react-bootstrap";
 
-function MyApp({ Component, pageProps }: AppProps) {
+const Root = ({ Component, pageProps }: AppProps) => {
   return (
     <SessionProvider session={pageProps.session}>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT"
-          crossOrigin="anonymous"
-        />
       </Head>
+      <Navbar variant="dark" expand="lg" style={{ background: "#372649" }}>
+        <Container>
+          <Navbar.Brand href="/">
+            <picture>
+              <source srcSet="/logo.svg" type="image/svg+xml" />
+              <img
+                src="/logo.svg"
+                width="30"
+                height="30"
+                className="d-inline-block align-top"
+                alt="App logo"
+                style={{ marginRight: "0.5em" }}
+              />
+            </picture>
+            Admin
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="/event">Veranstaltungen</Nav.Link>
+              <Nav.Link href="/profile">Profil</Nav.Link>
+            </Nav>
+            <Button onClick={() => signOut()} variant="outline-light">
+              Abmelden
+            </Button>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
       <Component {...pageProps} />
-      <Script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
-        crossOrigin="anonymous"
-      />
     </SessionProvider>
   );
-}
+};
 
-export default MyApp;
+export default Root;

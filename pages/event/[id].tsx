@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import moment, { utc } from "moment";
 import { GetServerSideProps, NextPage } from "next";
+import Head from "next/head";
 import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
 
@@ -79,11 +80,14 @@ const EventPage: NextPage<Data> = (data) => {
   };
 
   return (
-    <Container>
+    <Container className="pt-3 pb-4">
+      <Head>
+        <title>
+          {data.create ? "Veranstaltung erstellen" : "Veranstaltung bearbeiten"}
+        </title>
+      </Head>
       <h1>
-        {data.create
-          ? "Neue Veranstaltung anlegen"
-          : "Veranstaltung bearbeiten"}
+        {data.create ? "Veranstaltung erstellen" : "Veranstaltung bearbeiten"}
       </h1>
       <Form onSubmit={onSubmit}>
         <Form.Group className="mb-3">
@@ -149,7 +153,7 @@ const EventPage: NextPage<Data> = (data) => {
         </Form.Group>
         {error && <Alert variant="danger">{error}</Alert>}
         <Button type="submit">
-          Veranstaltung {data.create ? "erstellen" : "ändern"}
+          {data.create ? "Veranstaltung erstellen" : "Änderungen speichern"}
         </Button>
       </Form>
     </Container>

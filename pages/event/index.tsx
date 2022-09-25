@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { utc } from "moment";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button, Container, Modal, Table } from "react-bootstrap";
@@ -86,7 +87,11 @@ const EventPage: NextPage<Data> = (data) => {
   };
 
   return (
-    <Container>
+    <Container className="pt-3 pb-5">
+      <Head>
+        <title>Veranstaltungen</title>
+      </Head>
+
       <h1>Veranstaltungen</h1>
       <Table>
         <thead>

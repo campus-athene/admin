@@ -1,6 +1,7 @@
 import { EventOrganiser, PrismaClient } from "@prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
+import Head from "next/head";
 import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
 import { authOptions } from "./api/auth/[...nextauth]";
@@ -70,7 +71,11 @@ const ProfilePage: NextPage<Data> = (data) => {
   };
 
   return (
-    <Container>
+    <Container className="pt-3 pb-5">
+      <Head>
+        <title>Veranstalterprofil bearbeiten</title>
+      </Head>
+
       <h1>Veranstalterprofil bearbeiten</h1>
       <Form onSubmit={onSubmit}>
         <Form.Group className="mb-3">
