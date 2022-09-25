@@ -6,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
-  debug: true,
   secret: process.env.SECRET,
   // Configure one or more authentication providers
   providers: [
