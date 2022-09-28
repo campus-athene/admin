@@ -8,10 +8,11 @@ datasource db {
 }
 
 model AdminUser {
-  id       Int    @id @default(autoincrement())
-  email    String @unique(map: "email_UNIQUE") @db.VarChar(45)
-  password Bytes  @db.Binary(64)
-  salt     Bytes  @db.Binary(64)
+  id       Int     @id @default(autoincrement())
+  email    String  @unique(map: "email_UNIQUE") @db.VarChar(45)
+  password Bytes   @db.Binary(64)
+  salt     Bytes   @db.Binary(64)
+  images   Image[] @relation("admin_usersToimages")
 
   @@index([email], map: "email_INDEX")
   @@map("admin_users")
@@ -23,7 +24,7 @@ model Event {
   description          String         @db.Text
   registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
   date                 DateTime       @db.DateTime(0)
-  image                String         @db.VarChar(100)
+  image                String         @db.Char(16)
   clicks               Int            @default(0)
   organiser            Int
   eventOrganisers      EventOrganiser @relation("event_organisersToevents", fields: [organiser], references: [id], onUpdate: Restrict, map: "organiser")
@@ -36,8 +37,8 @@ model EventOrganiser {
   id              Int     @id @default(autoincrement())
   name            String  @db.Text
   description     String  @db.Text
-  logoImg         String  @map("logo_img") @db.VarChar(250)
-  coverImg        String  @map("cover_img") @db.VarChar(250)
+  logoImg         String  @map("logo_img") @db.Char(16)
+  coverImg        String  @map("cover_img") @db.Char(16)
   socialWebsite   String? @map("social_website") @db.VarChar(250)
   socialEmail     String? @map("social_email") @db.VarChar(250)
   socialPhone     String? @map("social_phone") @db.VarChar(250)
@@ -51,4 +52,15 @@ model EventOrganiser {
   events          Event[] @relation("event_organisersToevents")
 
   @@map("event_organisers")
+}
+
+model Image {
+  id          String    @id @db.Char(16)
+  mimeType    String    @map("mime_type") @db.VarChar(150)
+  ownerId     Int       @map("owner")
+  dateCreated DateTime  @default(now()) @map("date_created") @db.Timestamp(0)
+  owner       AdminUser @relation("admin_usersToimages", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "owner")
+
+  @@index([ownerId], map: "owner_idx")
+  @@map("images")
 }

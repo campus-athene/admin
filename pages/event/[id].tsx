@@ -4,6 +4,8 @@ import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
+import FileUpload from "../../components/FileUpload";
+import { RequestBody } from "../api/event";
 
 type Data =
   | {
@@ -44,6 +46,9 @@ const EventPage: NextPage<Data> = (data) => {
   const [hasRegDeadline, setHasRegDeadline] = useState(
     data.create ? false : !!data.registrationDeadline
   );
+  const [image, setImage] = useState<string | null>(
+    data.create ? null : data.image
+  );
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
@@ -51,30 +56,62 @@ const EventPage: NextPage<Data> = (data) => {
 
     const controls = e.target as unknown as { [id: string]: HTMLInputElement };
 
-    const body = {
-      id: data.create ? undefined : data.id,
-      title: controls.title.value,
-      description: controls.desc.value,
-      date: moment(controls.date.value).utc().toISOString(),
-      registrationDeadline: hasRegDeadline
-        ? moment(controls.regDeadline.value).utc().toISOString()
-        : null,
-      image: controls.image.value,
-    };
+    let response: Response;
 
-    const res = await fetch("/api/event", {
-      method: data.create ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    if (data.create) {
+      if (!image) {
+        setError("Bitte wähle ein Bild aus.");
+        return;
+      }
 
-    if (res.ok) history.back();
+      const body: RequestBody = {
+        title: controls.title.value,
+        description: controls.desc.value,
+        date: moment(controls.date.value).utc().toISOString(),
+        registrationDeadline: hasRegDeadline
+          ? moment(controls.regDeadline.value).utc().toISOString()
+          : null,
+        image: image,
+      };
+
+      response = await fetch("/api/event", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    } else {
+      if (!image) {
+        setError("Bitte wähle ein Bild aus.");
+        return;
+      }
+
+      const body: RequestBody = {
+        id: data.id,
+        title: controls.title.value,
+        description: controls.desc.value,
+        date: moment(controls.date.value).utc().toISOString(),
+        registrationDeadline: hasRegDeadline
+          ? moment(controls.regDeadline.value).utc().toISOString()
+          : null,
+        image: image,
+      };
+
+      response = await fetch("/api/event", {
+        method: data.create ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    }
+
+    if (response.ok) history.back();
     else
       setError(
-        res.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
-          ? await res.text()
+        response.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
+          ? await response.text()
           : "Ein unbekannter Fehler ist aufgetreten."
       );
   };
@@ -144,12 +181,8 @@ const EventPage: NextPage<Data> = (data) => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Bild</Form.Label>
-          <Form.Control
-            id="image"
-            type="url"
-            defaultValue={data.create ? undefined : data.image}
-          />
+          <Form.Label>Bild (3:2-Format)</Form.Label>
+          <FileUpload onFileUploaded={(id) => setImage(id)} />
         </Form.Group>
         {error && <Alert variant="danger">{error}</Alert>}
         <Button type="submit">

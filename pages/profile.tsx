@@ -4,6 +4,7 @@ import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
 import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
+import FileUpload from "../components/FileUpload";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 type Data = EventOrganiser;
@@ -31,6 +32,9 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 const ProfilePage: NextPage<Data> = (data) => {
   const [error, setError] = useState<string | null>(null);
 
+  const [logoImg, setLogoImg] = useState<string>(data.logoImg);
+  const [coverImg, setCoverImg] = useState<string>(data.coverImg);
+
   const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
@@ -39,8 +43,8 @@ const ProfilePage: NextPage<Data> = (data) => {
     const body = {
       name: controls.name.value,
       description: controls.description.value,
-      logoImg: controls.logoImg.value,
-      coverImg: controls.coverImg.value,
+      logoImg,
+      coverImg,
       socialWebsite: controls.socialWebsite.value,
       socialEmail: controls.socialEmail.value,
       socialPhone: controls.socialPhone.value,
@@ -93,11 +97,11 @@ const ProfilePage: NextPage<Data> = (data) => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Logo</Form.Label>
-          <Form.Control id="logoImg" type="url" defaultValue={data.logoImg} />
+          <FileUpload onFileUploaded={(id) => setLogoImg(id)} />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Titelbild</Form.Label>
-          <Form.Control id="coverImg" type="url" defaultValue={data.coverImg} />
+          <FileUpload onFileUploaded={(id) => setCoverImg(id)} />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Webseite</Form.Label>

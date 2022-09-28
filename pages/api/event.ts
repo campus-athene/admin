@@ -5,10 +5,36 @@ import { authOptions } from "./auth/[...nextauth]";
 
 const prisma = new PrismaClient();
 
+export type RequestBody =
+  // PUT
+  | {
+      // organiser: string;
+      title: string;
+      description: string;
+      date: string;
+      registrationDeadline: string | null;
+      image: string;
+    }
+  // POST
+  | {
+      id: number;
+      // organiser: string;
+      title: string;
+      description: string;
+      date: string;
+      registrationDeadline: string | null;
+      image?: string;
+    }
+  // DELETE
+  | {
+      id: number;
+    };
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<never>
+  res: NextApiResponse<void>
 ) {
+  console.log("/api/event " + req.method);
   const session = await unstable_getServerSession(req, res, authOptions);
 
   const organiser = Number.parseInt(session?.token.sub || "");
@@ -18,10 +44,12 @@ export default async function handler(
     return;
   }
 
-  const body = req.body as { [key: string]: string };
+  const body = req.body as RequestBody;
 
   switch (req.method) {
     case "PUT":
+      if ("id" in body)
+        throw new Error("PUT request body must not contain id.");
       await prisma.event.create({
         data: {
           organiser,
@@ -37,7 +65,10 @@ export default async function handler(
       break;
 
     case "POST":
-      const idPost = Number.parseInt(body.id);
+      if (!("id" in body && "title" in body))
+        throw new Error("POST request body must contain id and title.");
+
+      const idPost = body.id;
       if (!idPost) {
         res.status(404).end(); // 404 Not Found
         return;
@@ -63,7 +94,9 @@ export default async function handler(
       break;
 
     case "DELETE":
-      const idDelete = Number.parseInt(body.id);
+      if (!("id" in body))
+        throw new Error("DELETE request body must contain id.");
+      const idDelete = body.id;
       if (!idDelete) {
         res.status(404).end(); // 404 Not Found
         return;
