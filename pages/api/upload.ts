@@ -1,12 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import { randomBytes } from "crypto";
-import { writeFile } from "fs/promises";
 import { NextApiRequest, NextApiResponse, PageConfig } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { join } from "path";
+import { createClient } from "webdav";
 import { authOptions } from "./auth/[...nextauth]";
 
 const prisma = new PrismaClient();
+
+if (!process.env.STORAGE_URL) throw new Error("STORAGE_URL was not specified.");
+
+const webdav = createClient(process.env.STORAGE_URL, {
+  maxBodyLength: 1024 * 1024 * 10,
+});
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -23,7 +29,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const id = randomBytes(8).toString("hex");
 
-  await writeFile(join(process.env.IMAGE_DIR || "/vol/img", id), req);
+  if (!(await webdav.putFileContents(join("/image-upload", id), req)))
+    throw new Error("putFileContents returned false.");
 
   await prisma.image.create({
     data: {
