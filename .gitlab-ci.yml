@@ -11,4 +11,4 @@ service:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE
   allow_failure: false
   only:
-    - master
+    - release
