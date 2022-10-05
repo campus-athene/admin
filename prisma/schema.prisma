@@ -22,8 +22,14 @@ model Event {
   id                   Int            @id @default(autoincrement())
   title                String         @db.Text
   description          String         @db.Text
-  registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
   date                 DateTime       @db.DateTime(0)
+  online               Boolean        @default(dbgenerated("(b'0')")) @db.Bit(1)
+  eventType            String         @default("") @map("event_type") @db.Text
+  venue                String?        @db.Text
+  participationLink    String?        @map("participation_link") @db.Text
+  registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
+  registrationLink     String?        @map("registration_link") @db.Text
+  price                String         @default("") @db.Text
   image                String         @db.Char(16)
   clicks               Int            @default(0)
   organiser            Int
@@ -39,6 +45,7 @@ model EventOrganiser {
   description     String  @db.Text
   logoImg         String  @map("logo_img") @db.Char(16)
   coverImg        String  @map("cover_img") @db.Char(16)
+  eventLimit      Int     @default(10) @map("event_limit")
   socialWebsite   String? @map("social_website") @db.VarChar(250)
   socialEmail     String? @map("social_email") @db.VarChar(250)
   socialPhone     String? @map("social_phone") @db.VarChar(250)

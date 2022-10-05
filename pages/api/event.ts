@@ -5,36 +5,32 @@ import { authOptions } from "./auth/[...nextauth]";
 
 const prisma = new PrismaClient();
 
+type RequestEventData = {
+  title: string;
+  description: string;
+  date: string;
+  online: boolean;
+  eventType: string;
+  venue: string | null;
+  participationLink: string | null;
+  registrationDeadline: string | null;
+  registrationLink: string | null;
+  // price: string;
+  image: string;
+};
+
 export type RequestBody =
   // PUT
-  | {
-      // organiser: string;
-      title: string;
-      description: string;
-      date: string;
-      registrationDeadline: string | null;
-      image: string;
-    }
+  | RequestEventData
   // POST
-  | {
-      id: number;
-      // organiser: string;
-      title: string;
-      description: string;
-      date: string;
-      registrationDeadline: string | null;
-      image?: string;
-    }
+  | ({ id: number } & RequestEventData)
   // DELETE
-  | {
-      id: number;
-    };
+  | { id: number };
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<void>
 ) {
-  console.log("/api/event " + req.method);
   const session = await unstable_getServerSession(req, res, authOptions);
 
   const organiser = Number.parseInt(session?.token.sub || "");
@@ -56,8 +52,13 @@ export default async function handler(
           title: body.title,
           description: body.description,
           date: new Date(body.date),
+          online: body.online,
+          eventType: body.eventType,
+          venue: body.venue,
+          participationLink: body.participationLink,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
+          registrationLink: body.registrationLink,
           image: body.image,
         },
       });
@@ -79,8 +80,13 @@ export default async function handler(
           title: body.title,
           description: body.description,
           date: new Date(body.date),
+          online: body.online,
+          eventType: body.eventType,
+          venue: body.venue,
+          participationLink: body.participationLink,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
+          registrationLink: body.registrationLink,
           image: body.image,
         },
       });

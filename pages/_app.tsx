@@ -30,6 +30,9 @@ const Root = ({ Component, pageProps }: AppProps) => {
             <Nav className="me-auto">
               <Nav.Link href="/event">Veranstaltungen</Nav.Link>
               <Nav.Link href="/profile">Profil</Nav.Link>
+              <Nav.Link href="https://www.study-campus.de/legal.html">
+                Impressum
+              </Nav.Link>
             </Nav>
             <Button onClick={() => signOut()} variant="outline-light">
               Abmelden

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { utc } from "moment";
+import "moment/locale/de";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
@@ -22,6 +23,10 @@ type EventData = {
 };
 type Data = {
   events: EventData[];
+  eventLimit: {
+    count: number;
+    limit: number;
+  };
 };
 
 const prisma = new PrismaClient();
@@ -45,24 +50,34 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       },
     };
 
+  const [events, { eventLimit }] = await Promise.all([
+    prisma.event.findMany({
+      select: fieldSelector,
+      orderBy: {
+        date: "desc",
+      },
+      where: {
+        organiser: userId,
+      },
+    }),
+    prisma.eventOrganiser.findUniqueOrThrow({
+      select: { eventLimit: true },
+      where: { id: userId },
+    }),
+  ]);
+
   return {
     props: {
-      events: (
-        await prisma.event.findMany({
-          select: fieldSelector,
-          orderBy: {
-            date: "desc",
-          },
-          where: {
-            organiser: userId,
-          },
-        })
-      ).map((e) => ({
+      events: events.map((e) => ({
         ...e,
         date: e.date.toISOString(),
         registrationDeadline:
           e.registrationDeadline?.getUTCMilliseconds() || null,
       })),
+      eventLimit: {
+        count: events.filter((e) => e.date >= new Date()).length,
+        limit: eventLimit,
+      },
     },
   };
 };
@@ -106,7 +121,7 @@ const EventPage: NextPage<Data> = (data) => {
           {data.events.map((e) => (
             <tr key={e.id}>
               <td>{e.title}</td>
-              <td>{utc(e.date).local().format("llll")}</td>
+              <td>{utc(e.date).local().locale("de").format("llll")}</td>
               <td>
                 <a href={`/event/${e.id}`}>Bearbeiten</a>
               </td>
@@ -125,6 +140,9 @@ const EventPage: NextPage<Data> = (data) => {
           ))}
         </tbody>
       </Table>
+      <p>
+        {data.eventLimit.count} / {data.eventLimit.limit} Veranstaltungen
+      </p>
       <Button as="a" href="/event/create">
         Neue Veranstaltung erstellen
       </Button>

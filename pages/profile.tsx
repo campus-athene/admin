@@ -185,6 +185,13 @@ const ProfilePage: NextPage<Data> = (data) => {
         </Form.Group>
         {error && <Alert variant="danger">{error}</Alert>}
         <Button type="submit">Änderungen speichern</Button>
+        <Button
+          onClick={() => history.back()}
+          variant="secondary"
+          style={{ marginLeft: "0.5em" }}
+        >
+          Abbrechen
+        </Button>
       </Form>
     </Container>
   );

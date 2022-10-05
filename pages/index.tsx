@@ -11,7 +11,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (!session)
+  if (session)
+    return {
+      redirect: {
+        destination: "/event",
+        permanent: true,
+      },
+    };
+  else
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
@@ -21,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
 
-  return { props: {} };
+  // return { props: {} };
 };
 
 const Home: NextPage = () => {
