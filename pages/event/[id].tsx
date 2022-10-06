@@ -242,7 +242,14 @@ const EventPage: NextPage<Data> = (data) => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Bild (3:2-Format)</Form.Label>
-          <FileUpload onFileUploaded={(id) => setImage(id)} />
+          <FileUpload
+            imageId={image || undefined}
+            onFileUploaded={(id) => setImage(id)}
+            style={{
+              height: "8rem",
+              width: "12rem",
+            }}
+          />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Veranstaltungstype</Form.Label>

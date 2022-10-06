@@ -95,14 +95,30 @@ const ProfilePage: NextPage<Data> = (data) => {
             defaultValue={data.description}
           />
         </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Logo</Form.Label>
-          <FileUpload onFileUploaded={(id) => setLogoImg(id)} />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Titelbild</Form.Label>
-          <FileUpload onFileUploaded={(id) => setCoverImg(id)} />
-        </Form.Group>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1em" }}>
+          <Form.Group className="mb-3">
+            <Form.Label>Logo (1:1)</Form.Label>
+            <FileUpload
+              imageId={logoImg}
+              onFileUploaded={(id) => setLogoImg(id)}
+              style={{
+                height: "8rem",
+                width: "8rem",
+              }}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Titelbild (3:1)</Form.Label>
+            <FileUpload
+              imageId={coverImg}
+              onFileUploaded={(id) => setCoverImg(id)}
+              style={{
+                height: "8rem",
+                width: "24rem",
+              }}
+            />
+          </Form.Group>
+        </div>
         <Form.Group className="mb-3">
           <Form.Label>Webseite</Form.Label>
           <Form.Control
