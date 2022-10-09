@@ -30,6 +30,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 };
 
 const ProfilePage: NextPage<Data> = (data) => {
+  const [formHasValidated, setFormHasValidated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [logoImg, setLogoImg] = useState<string>(data.logoImg);
@@ -80,11 +81,22 @@ const ProfilePage: NextPage<Data> = (data) => {
         <title>Veranstalterprofil bearbeiten</title>
       </Head>
 
-      <h1>Veranstalterprofil bearbeiten</h1>
-      <Form onSubmit={onSubmit}>
+      <h1 className="mb-4">Veranstalterprofil bearbeiten</h1>
+      <Form
+        onSubmit={onSubmit}
+        onInvalid={() => setFormHasValidated(true)}
+        validated={formHasValidated}
+      >
         <Form.Group className="mb-3">
           <Form.Label>Name</Form.Label>
-          <Form.Control id="name" type="text" defaultValue={data.name} />
+          <Form.Control
+            id="name"
+            type="text"
+            defaultValue={data.name}
+            maxLength={50}
+            required
+          />
+          <Form.Text>Maximal 50 Zeichen</Form.Text>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Beschreibung</Form.Label>
@@ -93,7 +105,11 @@ const ProfilePage: NextPage<Data> = (data) => {
             as="textarea"
             rows={4}
             defaultValue={data.description}
+            minLength={100}
+            maxLength={1000}
+            required
           />
+          <Form.Text>100 bis 1.000 Zeichen</Form.Text>
         </Form.Group>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1em" }}>
           <Form.Group className="mb-3">
@@ -105,6 +121,8 @@ const ProfilePage: NextPage<Data> = (data) => {
                 height: "8rem",
                 width: "8rem",
               }}
+              required
+              validated={formHasValidated}
             />
           </Form.Group>
           <Form.Group className="mb-3">
@@ -116,15 +134,19 @@ const ProfilePage: NextPage<Data> = (data) => {
                 height: "8rem",
                 width: "24rem",
               }}
+              validated={formHasValidated}
             />
           </Form.Group>
         </div>
+
+        <h4 className="mt-5 mb-3">Kontakt</h4>
         <Form.Group className="mb-3">
           <Form.Label>Webseite</Form.Label>
           <Form.Control
             id="socialWebsite"
             type="url"
             defaultValue={data.socialWebsite || undefined}
+            required
           />
         </Form.Group>
         <Form.Group className="mb-3">
@@ -133,16 +155,22 @@ const ProfilePage: NextPage<Data> = (data) => {
             id="socialEmail"
             type="email"
             defaultValue={data.socialEmail || undefined}
+            required
           />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Telefon</Form.Label>
           <Form.Control
             id="socialPhone"
-            type="url"
+            type="tel"
             defaultValue={data.socialPhone || undefined}
           />
         </Form.Group>
+
+        <h4 className="mt-5 mb-0">Soziale Medien</h4>
+        <Form.Text className="mt-0 mb-3" style={{ display: "block" }}>
+          Angaben jeweils als vollständige URL
+        </Form.Text>
         <Form.Group className="mb-3">
           <Form.Label>Facebook</Form.Label>
           <Form.Control
@@ -160,19 +188,19 @@ const ProfilePage: NextPage<Data> = (data) => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Twitter</Form.Label>
-          <Form.Control
-            id="socialTwitter"
-            type="url"
-            defaultValue={data.socialTwitter || undefined}
-          />
-        </Form.Group>
-        <Form.Group className="mb-3">
           <Form.Label>LinkedIn</Form.Label>
           <Form.Control
             id="socialLinkedin"
             type="url"
             defaultValue={data.socialLinkedin || undefined}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Telegram</Form.Label>
+          <Form.Control
+            id="socialTelegram"
+            type="url"
+            defaultValue={data.socialTelegram || undefined}
           />
         </Form.Group>
         <Form.Group className="mb-3">
@@ -184,6 +212,14 @@ const ProfilePage: NextPage<Data> = (data) => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Twitter</Form.Label>
+          <Form.Control
+            id="socialTwitter"
+            type="url"
+            defaultValue={data.socialTwitter || undefined}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
           <Form.Label>YouTube</Form.Label>
           <Form.Control
             id="socialYoutube"
@@ -191,16 +227,9 @@ const ProfilePage: NextPage<Data> = (data) => {
             defaultValue={data.socialYoutube || undefined}
           />
         </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Telegram</Form.Label>
-          <Form.Control
-            id="socialTelegram"
-            type="url"
-            defaultValue={data.socialTelegram || undefined}
-          />
-        </Form.Group>
+
         {error && <Alert variant="danger">{error}</Alert>}
-        <Button type="submit">Änderungen speichern</Button>
+        <Button type="submit">Speichern</Button>
         <Button
           onClick={() => history.back()}
           variant="secondary"
