@@ -1,7 +1,6 @@
 import {
   ChangeEventHandler,
   CSSProperties,
-  HTMLAttributes,
   MouseEventHandler,
   useRef,
   useState,
@@ -11,7 +10,9 @@ import { Button, Form, Modal } from "react-bootstrap";
 const FileUpload = (props: {
   imageId?: string;
   onFileUploaded?: (id: string, file: File) => void;
+  required?: boolean;
   style: CSSProperties;
+  validated?: boolean;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -68,6 +69,14 @@ const FileUpload = (props: {
     setIsModalOpen(false);
   };
 
+  const className =
+    "form-control " +
+    (!props.validated
+      ? ""
+      : props.required && !props.imageId
+      ? "is-invalid"
+      : "is-valid");
+
   return (
     <>
       {props.imageId ? (
@@ -76,21 +85,23 @@ const FileUpload = (props: {
             alt="Bildvorschau"
             onClick={() => setIsModalOpen(true)}
             src={`/api/image/${props.imageId}`}
+            className={className}
             style={{
-              border: "1px solid lightgray",
               boxSizing: "content-box",
               display: "block",
+              padding: "0",
               ...props.style,
             }}
           />
         </picture>
       ) : (
         <div
+          className={className}
           onClick={() => setIsModalOpen(true)}
           style={{
-            border: "1px solid lightgray",
             boxSizing: "content-box",
             display: "block",
+            padding: "0",
             ...props.style,
           }}
         />

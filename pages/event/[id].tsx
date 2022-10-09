@@ -57,6 +57,15 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 };
 
 const EventPage: NextPage<Data> = (data) => {
+  const [formHasValidated, setFormHasValidated] = useState(false);
+  const [needsRegistration, setNeedsRegsitration] = useState(
+    data.create ? false : !!data.registrationLink
+  );
+  const [regLinkType, setRegLinkType] = useState<"email" | "weblink">(
+    data.create || !data.registrationLink?.startsWith("mailto:")
+      ? "weblink"
+      : "email"
+  );
   const [hasRegDeadline, setHasRegDeadline] = useState(
     data.create ? false : !!data.registrationDeadline
   );
@@ -89,9 +98,10 @@ const EventPage: NextPage<Data> = (data) => {
         eventType: controls.eventType.value,
         venue: controls.venue.value,
         participationLink: controls.participationLink.value,
-        registrationDeadline: hasRegDeadline
-          ? moment(controls.regDeadline.value).utc().toISOString()
-          : null,
+        registrationDeadline:
+          needsRegistration && hasRegDeadline
+            ? moment(controls.regDeadline.value).utc().toISOString()
+            : null,
         registrationLink: controls.registrationLink.value,
         image: image,
       };
@@ -117,11 +127,12 @@ const EventPage: NextPage<Data> = (data) => {
         online: controls.venueType.value === "online",
         eventType: controls.eventType.value,
         venue: controls.venue.value,
-        participationLink: controls.participationLink.value,
-        registrationDeadline: hasRegDeadline
+        registrationDeadline: needsRegistration
           ? moment(controls.regDeadline.value).utc().toISOString()
           : null,
-        registrationLink: controls.registrationLink.value,
+        registrationLink:
+          (regLinkType === "email" ? "mailto:" : "") +
+          controls.registrationLink.value,
         image: image,
       };
 
@@ -150,17 +161,24 @@ const EventPage: NextPage<Data> = (data) => {
           {data.create ? "Veranstaltung erstellen" : "Veranstaltung bearbeiten"}
         </title>
       </Head>
-      <h1>
+      <h1 className="mb-4">
         {data.create ? "Veranstaltung erstellen" : "Veranstaltung bearbeiten"}
       </h1>
-      <Form onSubmit={onSubmit}>
+      <Form
+        onSubmit={onSubmit}
+        onInvalid={() => setFormHasValidated(true)}
+        validated={formHasValidated}
+      >
         <Form.Group className="mb-3">
-          <Form.Label>Titel</Form.Label>
+          <Form.Label>Name</Form.Label>
           <Form.Control
             id="title"
             type="text"
             defaultValue={data.create ? undefined : data.title}
+            maxLength={50}
+            required
           />
+          <Form.Text>Maximal 50 Zeichen</Form.Text>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Beschreibung</Form.Label>
@@ -169,7 +187,11 @@ const EventPage: NextPage<Data> = (data) => {
             as="textarea"
             rows={4}
             defaultValue={data.create ? undefined : data.description}
+            minLength={100}
+            maxLength={1000}
+            required
           />
+          <Form.Text>100 bis 1.000 Zeichen</Form.Text>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Veranstaltungsformat</Form.Label>
@@ -179,14 +201,17 @@ const EventPage: NextPage<Data> = (data) => {
           >
             {[
               "Beratung",
-              "Konferenz",
-              "Seminar",
-              "Workshop",
-              "Training",
               "Exkursion",
+              "Infoveranstaltung",
               "Konferenz",
-              "Vortrag",
+              "Kultur",
               "Messe",
+              "Seminar",
+              "Sport",
+              "Party",
+              "Vortrag",
+              "Workshop",
+              "Sonstiges",
             ].map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -195,7 +220,7 @@ const EventPage: NextPage<Data> = (data) => {
           </Form.Select>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Datum</Form.Label>
+          <Form.Label>Datum und Uhrzeit</Form.Label>
           <Form.Control
             id="date"
             type="datetime-local"
@@ -204,20 +229,82 @@ const EventPage: NextPage<Data> = (data) => {
                 ? undefined
                 : utc(data.date).local().format("YYYY-MM-DDThh:mm")
             }
+            required
           />
         </Form.Group>
-        <Form.Group className="mb3">
+        <Form.Group className="mb-3">
+          <Form.Label>Bild (3:2-Format)</Form.Label>
+          <FileUpload
+            imageId={image || undefined}
+            onFileUploaded={(id) => setImage(id)}
+            required
+            style={{
+              height: "8rem",
+              width: "12rem",
+            }}
+            validated={formHasValidated}
+          />
+          <Form.Control
+            type="hidden"
+            defaultValue={data.create ? undefined : data.image}
+            required
+          />
+        </Form.Group>
+
+        <h4 className="mt-5 mb-3">Anmeldung</h4>
+        <Form.Group className="mb-3">
           <Form.Check
-            label="Keine Anmeldung erforderlich"
-            checked={!hasRegDeadline}
-            onChange={(e) => setHasRegDeadline(!e.target.checked)}
+            label="Anmeldung erforderlich"
+            checked={needsRegistration}
+            onChange={(e) => setNeedsRegsitration(e.target.checked)}
           />
         </Form.Group>
         <Form.Group
           className="mb-3"
-          style={{ visibility: hasRegDeadline ? undefined : "collapse" }}
+          style={{ display: needsRegistration ? undefined : "none" }}
         >
-          <Form.Label>Anmelden bis</Form.Label>
+          <Form.Label>
+            Anmelden per
+            <Form.Check
+              checked={regLinkType === "weblink"}
+              inline
+              label="Web-Link"
+              onChange={() => setRegLinkType("weblink")}
+              style={{ marginLeft: "1em" }}
+              type="radio"
+            />
+            <Form.Check
+              checked={regLinkType === "email"}
+              inline
+              label="E-Mail"
+              onChange={() => setRegLinkType("email")}
+              type="radio"
+            />
+          </Form.Label>
+          <Form.Control
+            id="registrationLink"
+            type={regLinkType === "weblink" ? "url" : "email"}
+            defaultValue={
+              data.create
+                ? undefined
+                : data.registrationLink?.startsWith("mailto:")
+                ? data.registrationLink.substring(7)
+                : data.registrationLink || undefined
+            }
+            required={needsRegistration}
+          />
+        </Form.Group>
+        <Form.Group
+          className="mb-3"
+          style={{ display: needsRegistration ? undefined : "none" }}
+        >
+          <Form.Label>
+            <Form.Check
+              label="Anmeldung endet am"
+              checked={hasRegDeadline}
+              onChange={(e) => setHasRegDeadline(e.target.checked)}
+            />
+          </Form.Label>
           <Form.Control
             id="regDeadline"
             type="datetime-local"
@@ -228,31 +315,15 @@ const EventPage: NextPage<Data> = (data) => {
                     .local()
                     .format("YYYY-MM-DDThh:mm")
             }
-          />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Anmelden unter (Weblink / E-Mail-Adresse)</Form.Label>
-          <Form.Control
-            id="registrationLink"
-            type="text"
-            defaultValue={
-              data.create ? undefined : data.registrationLink || undefined
-            }
-          />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Bild (3:2-Format)</Form.Label>
-          <FileUpload
-            imageId={image || undefined}
-            onFileUploaded={(id) => setImage(id)}
+            required={needsRegistration && hasRegDeadline}
             style={{
-              height: "8rem",
-              width: "12rem",
+              display: hasRegDeadline ? undefined : "none",
             }}
           />
         </Form.Group>
+
+        <h4 className="mt-5 mb-3">Veranstaltungsort</h4>
         <Form.Group className="mb-3">
-          <Form.Label>Veranstaltungstype</Form.Label>
           <div>
             <ToggleButtonGroup
               name="venueType"
@@ -281,42 +352,44 @@ const EventPage: NextPage<Data> = (data) => {
         <Form.Group
           className="mb-3"
           style={{
-            visibility: venueType === "online" ? "visible" : "collapse",
+            display: venueType === "presence" ? undefined : "none",
           }}
         >
-          <Form.Label>Teilnahme-Link</Form.Label>
+          <Form.Label>Gebäudenummer und Raum</Form.Label>
           <Form.Control
-            id="participationLink"
+            id="venue"
             type="text"
-            defaultValue={
-              data.create ? undefined : data.participationLink || undefined
-            }
+            defaultValue={data.create ? undefined : data.venue || undefined}
+            required={venueType === "presence"}
           />
         </Form.Group>
         <Form.Group
           className="mb-3"
           style={{
-            visibility: venueType === "presence" ? "visible" : "collapse",
+            display: venueType === "presence" ? undefined : "none",
           }}
         >
-          <Form.Label>Adresse</Form.Label>
+          <Form.Label>Adresse inklusive Ort</Form.Label>
           <Form.Control
-            id="venue"
+            id="venueAddress"
             type="text"
             defaultValue={data.create ? undefined : data.venue || undefined}
+            required={venueType === "presence"}
           />
         </Form.Group>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <Button type="submit">
-          {data.create ? "Veranstaltung erstellen" : "Änderungen speichern"}
-        </Button>
-        <Button
-          onClick={() => history.back()}
-          variant="secondary"
-          style={{ marginLeft: "0.5em" }}
-        >
-          Abbrechen
-        </Button>
+        <div className="mb-5 mt-5">
+          {error && <Alert variant="danger">{error}</Alert>}
+          <Button type="submit">
+            {data.create ? "Veranstaltung erstellen" : "Speichern"}
+          </Button>
+          <Button
+            onClick={() => history.back()}
+            variant="secondary"
+            style={{ marginLeft: "0.5em" }}
+          >
+            Abbrechen
+          </Button>
+        </div>
       </Form>
     </Container>
   );
