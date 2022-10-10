@@ -6,6 +6,7 @@ import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
 import FileUpload from "../components/FileUpload";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { Body } from "./api/profile";
 
 type Data = EventOrganiser;
 
@@ -34,14 +35,14 @@ const ProfilePage: NextPage<Data> = (data) => {
   const [error, setError] = useState<string | null>(null);
 
   const [logoImg, setLogoImg] = useState<string>(data.logoImg);
-  const [coverImg, setCoverImg] = useState<string>(data.coverImg);
+  const [coverImg, setCoverImg] = useState<string | null>(data.coverImg);
 
   const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     const controls = e.target as unknown as { [id: string]: HTMLInputElement };
 
-    const body = {
+    const body: Body = {
       name: controls.name.value,
       description: controls.description.value,
       logoImg,
@@ -128,8 +129,9 @@ const ProfilePage: NextPage<Data> = (data) => {
           <Form.Group className="mb-3">
             <Form.Label>Titelbild (3:1)</Form.Label>
             <FileUpload
-              imageId={coverImg}
+              imageId={coverImg || undefined}
               onFileUploaded={(id) => setCoverImg(id)}
+              onRemoveFile={() => setCoverImg(null)}
               style={{
                 height: "8rem",
                 width: "24rem",
