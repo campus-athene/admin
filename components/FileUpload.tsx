@@ -10,6 +10,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 const FileUpload = (props: {
   imageId?: string;
   onFileUploaded?: (id: string, file: File) => void;
+  onRemoveFile?: () => void;
   required?: boolean;
   style: CSSProperties;
   validated?: boolean;
@@ -69,6 +70,11 @@ const FileUpload = (props: {
     setIsModalOpen(false);
   };
 
+  const onRemove: MouseEventHandler<HTMLButtonElement> = async (ev) => {
+    props.onRemoveFile && props.onRemoveFile();
+    setIsModalOpen(false);
+  };
+
   const className =
     "form-control " +
     (!props.validated
@@ -121,6 +127,11 @@ const FileUpload = (props: {
           </Form.Text>
         </Modal.Body>
         <Modal.Footer>
+          {props.onRemoveFile && !props.required ? (
+            <Button onClick={onRemove} variant="outline-danger">
+              Bild entfernen
+            </Button>
+          ) : null}
           <Button onClick={onCancel} variant="secondary">
             Abbrechen
           </Button>

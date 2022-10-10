@@ -5,6 +5,23 @@ import { authOptions } from "./auth/[...nextauth]";
 
 const prisma = new PrismaClient();
 
+export type Body = {
+  name: string;
+  description: string;
+  logoImg: string;
+  coverImg: string | null;
+  socialWebsite: string;
+  socialEmail: string;
+  socialPhone: string | null;
+  socialFacebook: string | null;
+  socialInstagram: string | null;
+  socialTwitter: string | null;
+  socialLinkedin: string | null;
+  socialTiktok: string | null;
+  socialYoutube: string | null;
+  socialTelegram: string | null;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<never>
@@ -23,7 +40,7 @@ export default async function handler(
     return;
   }
 
-  const body = req.body as { [key: string]: string };
+  const body = req.body as Body;
 
   await prisma.eventOrganiser.update({
     where: { id: organiser },
