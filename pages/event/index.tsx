@@ -14,12 +14,14 @@ const fieldSelector = {
   title: true,
   date: true,
   registrationDeadline: true,
+  image: true,
 };
 type EventData = {
   id: number;
   title: string;
   date: string;
   registrationDeadline: number | null;
+  image: string;
 };
 type Data = {
   events: EventData[];
@@ -111,6 +113,7 @@ const EventPage: NextPage<Data> = (data) => {
       <Table>
         <thead>
           <tr>
+            <th style={{ width: "3.75em" }}></th>
             <th>Name</th>
             <th>Datum</th>
             <th></th>
@@ -120,6 +123,22 @@ const EventPage: NextPage<Data> = (data) => {
         <tbody>
           {data.events.map((e) => (
             <tr key={e.id}>
+              <td
+                style={{
+                  paddingBottom: "0",
+                  paddingLeft: "0",
+                  paddingTop: "0",
+                }}
+              >
+                <img
+                  src={`/api/image/${e.image}`}
+                  style={{
+                    height: "2.5em",
+                    width: "3.75em",
+                  }}
+                  alt="Titelbild"
+                />
+              </td>
               <td>{e.title}</td>
               <td>{utc(e.date).local().locale("de").format("llll")}</td>
               <td>
