@@ -12,10 +12,10 @@ type RequestEventData = {
   online: boolean;
   eventType: string;
   venue: string | null;
-  participationLink: string | null;
+  venueAddress: string | null;
   registrationDeadline: string | null;
   registrationLink: string | null;
-  // price: string;
+  price: string | null;
   image: string;
 };
 
@@ -26,10 +26,11 @@ export type RequestBody =
   | ({ id: number } & RequestEventData)
   // DELETE
   | { id: number };
+export type ResponseBody = { id: number } | { error: string };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<void>
+  res: NextApiResponse<ResponseBody>
 ) {
   const session = await unstable_getServerSession(req, res, authOptions);
 
@@ -41,12 +42,13 @@ export default async function handler(
   }
 
   const body = req.body as RequestBody;
+  let id: number;
 
   switch (req.method) {
     case "PUT":
       if ("id" in body)
         throw new Error("PUT request body must not contain id.");
-      await prisma.event.create({
+      const newEvent = await prisma.event.create({
         data: {
           organiser,
           title: body.title,
@@ -58,23 +60,26 @@ export default async function handler(
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
           registrationLink: body.registrationLink,
+          price: body.price,
           image: body.image,
         },
+        select: { id: true },
       });
 
+      id = newEvent.id;
       break;
 
     case "POST":
       if (!("id" in body && "title" in body))
         throw new Error("POST request body must contain id and title.");
 
-      const idPost = body.id;
-      if (!idPost) {
+      id = body.id;
+      if (!id) {
         res.status(404).end(); // 404 Not Found
         return;
       }
       const { count } = await prisma.event.updateMany({
-        where: { id: idPost, organiser },
+        where: { id, organiser },
         data: {
           title: body.title,
           description: body.description,
@@ -82,9 +87,11 @@ export default async function handler(
           online: body.online,
           eventType: body.eventType,
           venue: body.venue,
+          venueAddress: body.venueAddress,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
           registrationLink: body.registrationLink,
+          price: body.price,
           image: body.image,
         },
       });
@@ -100,13 +107,13 @@ export default async function handler(
     case "DELETE":
       if (!("id" in body))
         throw new Error("DELETE request body must contain id.");
-      const idDelete = body.id;
-      if (!idDelete) {
+      id = body.id;
+      if (!id) {
         res.status(404).end(); // 404 Not Found
         return;
       }
       await prisma.event.deleteMany({
-        where: { id: idDelete, organiser },
+        where: { id: id, organiser },
       });
 
       break;
@@ -116,5 +123,5 @@ export default async function handler(
       return;
   }
 
-  res.status(204).end(); // 204 No Content
+  res.status(204).json({ id }); // 204 No Content
 }

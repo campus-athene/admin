@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import moment, { utc } from "moment";
 import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { FormEventHandler, useState } from "react";
 import {
   Alert,
@@ -23,15 +24,29 @@ type Data =
       online: boolean;
       eventType: string;
       venue: string | null;
-      participationLink: string | null;
+      venueAddress: string | null;
       registrationDeadline: string | null;
       registrationLink: string | null;
-      // price: string;
+      price: string | null;
       image: string;
 
       create: false;
     }
   | { create: true };
+const select = {
+  id: true,
+  title: true,
+  description: true,
+  date: true,
+  online: true,
+  eventType: true,
+  venue: true,
+  venueAddress: true,
+  registrationDeadline: true,
+  registrationLink: true,
+  price: true,
+  image: true,
+};
 
 const prisma = new PrismaClient();
 
@@ -43,7 +58,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const id = typeof idParam === "string" && Number.parseInt(idParam);
   if (!id) return { notFound: true };
 
-  const event = await prisma.event.findUnique({ where: { id } });
+  const event = await prisma.event.findUnique({ select, where: { id } });
 
   if (!event) return { notFound: true };
   return {
@@ -57,7 +72,10 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 };
 
 const EventPage: NextPage<Data> = (data) => {
+  const router = useRouter();
+
   const [formHasValidated, setFormHasValidated] = useState(false);
+  const [isFree, setIsFree] = useState(data.create ? false : !data.price);
   const [needsRegistration, setNeedsRegsitration] = useState(
     data.create ? false : !!data.registrationLink
   );
@@ -82,76 +100,50 @@ const EventPage: NextPage<Data> = (data) => {
 
     const controls = e.target as unknown as { [id: string]: HTMLInputElement };
 
-    let response: Response;
-
-    if (data.create) {
-      if (!image) {
-        setError("Bitte wähle ein Bild aus.");
-        return;
-      }
-
-      const body: RequestBody = {
-        title: controls.title.value,
-        description: controls.desc.value,
-        date: moment(controls.date.value).utc().toISOString(),
-        online: controls.venueType.value === "online",
-        eventType: controls.eventType.value,
-        venue: controls.venue.value,
-        participationLink: controls.participationLink.value,
-        registrationDeadline:
-          needsRegistration && hasRegDeadline
-            ? moment(controls.regDeadline.value).utc().toISOString()
-            : null,
-        registrationLink: controls.registrationLink.value,
-        image: image,
-      };
-
-      response = await fetch("/api/event", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-    } else {
-      if (!image) {
-        setError("Bitte wähle ein Bild aus.");
-        return;
-      }
-
-      const body: RequestBody = {
-        id: data.id,
-        title: controls.title.value,
-        description: controls.desc.value,
-        date: moment(controls.date.value).utc().toISOString(),
-        online: controls.venueType.value === "online",
-        eventType: controls.eventType.value,
-        venue: controls.venue.value,
-        registrationDeadline: needsRegistration
-          ? moment(controls.regDeadline.value).utc().toISOString()
-          : null,
-        registrationLink:
-          (regLinkType === "email" ? "mailto:" : "") +
-          controls.registrationLink.value,
-        image: image,
-      };
-
-      response = await fetch("/api/event", {
-        method: data.create ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+    if (!image) {
+      setError("Bitte wähle ein Bild aus.");
+      return;
     }
 
-    if (response.ok) history.back();
-    else
+    const body: RequestBody = {
+      title: controls.title.value,
+      description: controls.desc.value,
+      date: moment(controls.date.value).utc().toISOString(),
+      online: controls.venueType.value === "online",
+      eventType: controls.eventType.value,
+      venue: controls.venue.value,
+      venueAddress: controls.venueAddress.value,
+      registrationDeadline:
+        needsRegistration && hasRegDeadline
+          ? moment(controls.regDeadline.value).utc().toISOString()
+          : null,
+      registrationLink: needsRegistration
+        ? (regLinkType === "email" ? "mailto:" : "") +
+          controls.registrationLink.value
+        : null,
+      price: isFree ? null : controls.price.value,
+      image: image,
+    };
+
+    const response = await fetch("/api/event", {
+      method: data.create ? "PUT" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data.create ? body : { id: data.id, ...body }),
+    });
+
+    if (!response.ok) {
       setError(
         response.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
           ? await response.text()
           : "Ein unbekannter Fehler ist aufgetreten."
       );
+      return;
+    }
+
+    if (history.length > 1) router.back();
+    else router.replace(`/event`);
   };
 
   return (
@@ -230,6 +222,26 @@ const EventPage: NextPage<Data> = (data) => {
                 : utc(data.date).local().format("YYYY-MM-DDThh:mm")
             }
             required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label style={{ marginBottom: isFree ? "0" : undefined }}>
+            Eintrittspreis
+            <Form.Check
+              checked={isFree}
+              inline
+              label="Kostenfrei"
+              style={{ marginLeft: "1em" }}
+              onChange={(e) => setIsFree(e.target.checked)}
+            />
+          </Form.Label>
+          <Form.Control
+            id="price"
+            defaultValue={data.create || !data.price ? undefined : data.price}
+            required={!isFree}
+            style={{
+              display: isFree ? "none" : undefined,
+            }}
           />
         </Form.Group>
         <Form.Group className="mb-3">
@@ -373,7 +385,9 @@ const EventPage: NextPage<Data> = (data) => {
           <Form.Control
             id="venueAddress"
             type="text"
-            defaultValue={data.create ? undefined : data.venue || undefined}
+            defaultValue={
+              data.create ? undefined : data.venueAddress || undefined
+            }
             required={venueType === "presence"}
           />
         </Form.Group>
