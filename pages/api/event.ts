@@ -57,6 +57,7 @@ export default async function handler(
           online: body.online,
           eventType: body.eventType,
           venue: body.venue,
+          venueAddress: body.venueAddress,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
           registrationLink: body.registrationLink,

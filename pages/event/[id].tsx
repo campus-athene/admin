@@ -180,10 +180,10 @@ const EventPage: NextPage<Data> = (data) => {
             rows={4}
             defaultValue={data.create ? undefined : data.description}
             minLength={100}
-            maxLength={1000}
+            maxLength={10000}
             required
           />
-          <Form.Text>100 bis 1.000 Zeichen</Form.Text>
+          <Form.Text>Mindestens 100 Zeichen</Form.Text>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Veranstaltungsformat</Form.Label>
@@ -219,7 +219,7 @@ const EventPage: NextPage<Data> = (data) => {
             defaultValue={
               data.create
                 ? undefined
-                : utc(data.date).local().format("YYYY-MM-DDThh:mm")
+                : utc(data.date).local().format("YYYY-MM-DDTHH:mm")
             }
             required
           />
@@ -325,7 +325,7 @@ const EventPage: NextPage<Data> = (data) => {
                 ? undefined
                 : utc(data.registrationDeadline)
                     .local()
-                    .format("YYYY-MM-DDThh:mm")
+                    .format("YYYY-MM-DDTHH:mm")
             }
             required={needsRegistration && hasRegDeadline}
             style={{
@@ -367,7 +367,7 @@ const EventPage: NextPage<Data> = (data) => {
             display: venueType === "presence" ? undefined : "none",
           }}
         >
-          <Form.Label>Gebäudenummer und Raum</Form.Label>
+          <Form.Label>Gebäude und Raum</Form.Label>
           <Form.Control
             id="venue"
             type="text"
@@ -388,7 +388,6 @@ const EventPage: NextPage<Data> = (data) => {
             defaultValue={
               data.create ? undefined : data.venueAddress || undefined
             }
-            required={venueType === "presence"}
           />
         </Form.Group>
         <div className="mb-5 mt-5">
