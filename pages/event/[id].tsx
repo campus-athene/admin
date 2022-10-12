@@ -42,6 +42,7 @@ const select = {
   eventType: true,
   venue: true,
   venueAddress: true,
+  venueData: true,
   registrationDeadline: true,
   registrationLink: true,
   price: true,
@@ -64,6 +65,8 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   return {
     props: {
       ...event,
+      venueAddress:
+        event.venueData && JSON.parse(event.venueData)["formatted_address"],
       date: event.date.toISOString(),
       registrationDeadline: event.registrationDeadline?.toISOString() || null,
       create: false,
@@ -134,11 +137,14 @@ const EventPage: NextPage<Data> = (data) => {
     });
 
     if (!response.ok) {
-      setError(
-        response.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
-          ? await response.text()
-          : "Ein unbekannter Fehler ist aufgetreten."
-      );
+      let error = "Ein unbekannter Fehler ist aufgetreten.";
+
+      try {
+        const returnedError: string = (await response.json()).error;
+        if (returnedError) error = returnedError;
+      } catch (_e) {}
+
+      setError(error);
       return;
     }
 

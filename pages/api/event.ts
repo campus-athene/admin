@@ -1,7 +1,11 @@
+import { Client } from "@googlemaps/google-maps-services-js";
 import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
+
+if (!process.env.GCP_API_KEY)
+  throw new Error("Environment variable GCP_API_KEY has not been defined.");
 
 const prisma = new PrismaClient();
 
@@ -44,6 +48,34 @@ export default async function handler(
   const body = req.body as RequestBody;
   let id: number;
 
+  let venueData = null;
+  if ("venueAddress" in body && body.venueAddress) {
+    if (!process.env.GCP_API_KEY)
+      throw new Error("Environment variable GCP_API_KEY has not been defined.");
+
+    const geocodeResponse = await new Client({}).geocode({
+      params: {
+        key: process.env.GCP_API_KEY,
+        address: body.venueAddress,
+        language: "de",
+        region: "de",
+      },
+    });
+
+    if (geocodeResponse.data.status !== "OK") {
+      console.warn(`Geocoding returned ${geocodeResponse.data.status}.`);
+      res.status(400).json({ error: "Adresse ungültig." });
+      return;
+    }
+
+    if (geocodeResponse.data.results.length !== 1)
+      console.warn(
+        `Geocoding returned ${geocodeResponse.data.results.length} results.'`
+      );
+
+    venueData = JSON.stringify(geocodeResponse.data.results[0]);
+  }
+
   switch (req.method) {
     case "PUT":
       if ("id" in body)
@@ -58,6 +90,7 @@ export default async function handler(
           eventType: body.eventType,
           venue: body.venue,
           venueAddress: body.venueAddress,
+          venueData,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
           registrationLink: body.registrationLink,
@@ -89,6 +122,7 @@ export default async function handler(
           eventType: body.eventType,
           venue: body.venue,
           venueAddress: body.venueAddress,
+          venueData,
           registrationDeadline:
             body.registrationDeadline && new Date(body.registrationDeadline),
           registrationLink: body.registrationLink,
@@ -124,5 +158,5 @@ export default async function handler(
       return;
   }
 
-  res.status(204).json({ id }); // 204 No Content
+  res.status(200).json({ id }); // 204 OK
 }

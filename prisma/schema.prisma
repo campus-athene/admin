@@ -27,6 +27,7 @@ model Event {
   eventType            String         @default("") @map("event_type") @db.Text
   venue                String?        @db.Text
   venueAddress         String?        @db.Text
+  venueData            String?        @db.LongText
   participationLink    String?        @map("participation_link") @db.Text
   registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
   registrationLink     String?        @map("registration_link") @db.Text
