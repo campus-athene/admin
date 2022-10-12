@@ -105,12 +105,20 @@ const FileUpload = (props: {
           className={className}
           onClick={() => setIsModalOpen(true)}
           style={{
+            alignItems: "center",
             boxSizing: "content-box",
-            display: "block",
+            color: "gray",
+            display: "flex",
+            justifyContent: "center",
             padding: "0",
+            textAlign: "center",
             ...props.style,
           }}
-        />
+        >
+          Klicke um ein
+          <br />
+          Bild hochzuladen
+        </div>
       )}
       <Modal show={isModalOpen}>
         <Modal.Header>
