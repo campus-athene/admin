@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { randomBytes } from "crypto";
 import { NextApiRequest, NextApiResponse, PageConfig } from "next";
 import { unstable_getServerSession } from "next-auth";
-import { join } from "path";
+import { join } from "path/posix";
 import { createClient } from "webdav";
 import { authOptions } from "./auth/[...nextauth]";
 
