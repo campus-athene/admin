@@ -49,7 +49,7 @@ const select = {
   registrationLink: true,
   price: true,
   image: true,
-  organiser: true,
+  organizer: true,
 };
 
 const prisma = new PrismaClient();
@@ -76,15 +76,15 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   if (
     !event ||
     // Admin is not the organizer of the event.
-    event.organiser !==
+    event.organizer !==
       (
         await prisma.adminUser.findUnique({
           where: { id: userId },
           select: {
-            adminsEventOrganiserId: true,
+            adminsEventOrganizerId: true,
           },
         })
-      )?.adminsEventOrganiserId
+      )?.adminsEventOrganizerId
   )
     return { notFound: true };
 

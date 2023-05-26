@@ -59,7 +59,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
         date: "desc",
       },
       where: {
-        eventOrganisers: {
+        eventOrganizer: {
           admins: {
             some: {
               id: userId,
@@ -68,7 +68,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
         },
       },
     }),
-    prisma.eventOrganiser.findUniqueOrThrow({
+    prisma.eventOrganizer.findUniqueOrThrow({
       select: { eventLimit: true },
       where: { id: userId },
     }),

@@ -45,14 +45,14 @@ export default async function handler(
     return;
   }
 
-  const organiserId = (
+  const organizerId = (
     await prisma.adminUser.findUnique({
       where: { id: userId },
-      select: { adminsEventOrganiser: { select: { id: true } } },
+      select: { adminsEventOrganizer: { select: { id: true } } },
     })
-  )?.adminsEventOrganiser?.id;
+  )?.adminsEventOrganizer?.id;
 
-  if (!organiserId) {
+  if (!organizerId) {
     res.status(401).end(); // 401 Unauthorized
     return;
   }
@@ -94,7 +94,7 @@ export default async function handler(
         throw new Error("PUT request body must not contain id.");
       const newEvent = await prisma.event.create({
         data: {
-          organiser: organiserId,
+          organizer: organizerId,
           title: body.title,
           description: body.description,
           date: new Date(body.date),
@@ -125,7 +125,7 @@ export default async function handler(
         return;
       }
       const { count } = await prisma.event.updateMany({
-        where: { id, organiser: organiserId },
+        where: { id, organizer: organizerId },
         data: {
           title: body.title,
           description: body.description,
@@ -144,7 +144,7 @@ export default async function handler(
       });
 
       if (count !== 1) {
-        // Strictly speaking it could also have been forbidden to update due to the request coming from the wrong organiser.
+        // Strictly speaking it could also have been forbidden to update due to the request coming from the wrong organizer.
         res.status(404).end(); // 404 Not Found
         return;
       }
@@ -160,7 +160,7 @@ export default async function handler(
         return;
       }
       await prisma.event.deleteMany({
-        where: { id: id, organiser: organiserId },
+        where: { id, organizer: organizerId },
       });
 
       break;

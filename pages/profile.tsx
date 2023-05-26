@@ -1,4 +1,4 @@
-import { EventOrganiser, PrismaClient } from "@prisma/client";
+import { EventOrganizer, PrismaClient } from "@prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
@@ -8,7 +8,7 @@ import FileUpload from "../components/FileUpload";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Body } from "./api/profile";
 
-type Data = EventOrganiser;
+type Data = EventOrganizer;
 
 const prisma = new PrismaClient();
 
@@ -26,10 +26,10 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     await prisma.adminUser.findUnique({
       where: { id: userId },
       select: {
-        adminsEventOrganiser: true,
+        adminsEventOrganizer: true,
       },
     })
-  )?.adminsEventOrganiser;
+  )?.adminsEventOrganizer;
 
   if (!orgaObj) return { notFound: true };
 

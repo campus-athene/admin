@@ -1,4 +1,4 @@
-import { EventOrganiser, PrismaClient } from "@prisma/client";
+import { EventOrganizer, PrismaClient } from "@prisma/client";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { GetServerSideProps, NextPage } from "next";
@@ -8,7 +8,7 @@ import Head from "next/head";
 const prisma = new PrismaClient();
 
 type Data = {
-  organisers: (Pick<EventOrganiser, "id" | "name"> & { selected: boolean })[];
+  organizers: (Pick<EventOrganizer, "id" | "name"> & { selected: boolean })[];
 };
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       id: userId,
     },
     select: {
-      adminsEventOrganiserId: true,
+      adminsEventOrganizerId: true,
       isGlobalAdmin: true,
     },
   });
@@ -45,18 +45,18 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       notFound: true,
     };
 
-  const setOrganiserId =
-    typeof context.query.organiserId === "string" &&
-    Number.parseInt(context.query.organiserId);
+  const setOrganizerId =
+    typeof context.query.organizerId === "string" &&
+    Number.parseInt(context.query.organizerId);
 
-  if (setOrganiserId) {
-    console.log(`Setting organiserId to ${setOrganiserId} for user ${userId}`);
+  if (setOrganizerId) {
+    console.log(`Setting organizerId to ${setOrganizerId} for user ${userId}`);
     await prisma.adminUser.update({
       where: {
         id: userId,
       },
       data: {
-        adminsEventOrganiserId: setOrganiserId,
+        adminsEventOrganizerId: setOrganizerId,
       },
     });
     return {
@@ -69,24 +69,24 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 
   return {
     props: {
-      organisers: await prisma.eventOrganiser
+      organizers: await prisma.eventOrganizer
         .findMany({
           select: {
             id: true,
             name: true,
           },
         })
-        .then((organisers) =>
-          organisers.map((organiser) => ({
-            ...organiser,
-            selected: organiser.id === user.adminsEventOrganiserId,
+        .then((organizers) =>
+          organizers.map((organizer) => ({
+            ...organizer,
+            selected: organizer.id === user.adminsEventOrganizerId,
           }))
         ),
     },
   };
 };
 
-const SelectOrganiserPage: NextPage<Data> = (props) => {
+const SelectOrganizerPage: NextPage<Data> = (props) => {
   return (
     <Container className="pt-3 pb-4">
       <Head>
@@ -102,16 +102,16 @@ const SelectOrganiserPage: NextPage<Data> = (props) => {
           </tr>
         </thead>
         <tbody>
-          {props.organisers.map((organiser) => (
-            <tr key={organiser.id}>
-              <td>{organiser.name}</td>
+          {props.organizers.map((organizer) => (
+            <tr key={organizer.id}>
+              <td>{organizer.name}</td>
               <td>
-                {organiser.selected ? (
+                {organizer.selected ? (
                   <Button disabled={true} variant={"outline-primary"} size="sm">
                     Ausgewählt
                   </Button>
                 ) : (
-                  <Button href={`?organiserId=${organiser.id}`} size="sm">
+                  <Button href={`?organizerId=${organizer.id}`} size="sm">
                     Auswählen
                   </Button>
                 )}
@@ -124,4 +124,4 @@ const SelectOrganiserPage: NextPage<Data> = (props) => {
   );
 };
 
-export default SelectOrganiserPage;
+export default SelectOrganizerPage;

@@ -45,7 +45,7 @@ export default async function handler(
   await prisma.adminUser.update({
     where: { id: userId },
     data: {
-      adminsEventOrganiser: {
+      adminsEventOrganizer: {
         update: {
           name: body.name,
           description: body.description,

@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 type Data = {
   isGlobalAdmin: boolean;
-  eventOrganiser: string | null;
+  eventOrganizer: string | null;
 };
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     },
     select: {
       isGlobalAdmin: true,
-      adminsEventOrganiser: {
+      adminsEventOrganizer: {
         select: {
           name: true,
         },
@@ -54,8 +54,8 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   return {
     props: {
       isGlobalAdmin: true,
-      eventOrganiser: adminUser.adminsEventOrganiser
-        ? adminUser.adminsEventOrganiser.name
+      eventOrganizer: adminUser.adminsEventOrganizer
+        ? adminUser.adminsEventOrganizer.name
         : null,
     },
   };
@@ -70,10 +70,10 @@ const Home: NextPage<Data> = (props) => {
 
       <h1 className="mb-4">Campus Administrations-Portal</h1>
 
-      {typeof props.eventOrganiser === "string" && (
+      {typeof props.eventOrganizer === "string" && (
         <>
           <h3>Campus Events</h3>
-          <h4>{props.eventOrganiser}</h4>
+          <h4>{props.eventOrganizer}</h4>
           <CardGroup className="mb-4">
             <Card>
               <Card.Body>
@@ -103,7 +103,7 @@ const Home: NextPage<Data> = (props) => {
             <Card>
               <Card.Body>
                 <Card.Title>Veranstalter auswählen &rarr;</Card.Title>
-                <Card.Link href="/event/selectOrganiser">
+                <Card.Link href="/event/selectOrganizer">
                   Veranstalter auswählen, für den Veranstaltungen bearbeitet
                   werden.
                 </Card.Link>

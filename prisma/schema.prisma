@@ -12,40 +12,40 @@ model AdminUser {
   email                  String          @unique(map: "email_UNIQUE") @db.VarChar(45)
   password               Bytes           @db.Binary(64)
   salt                   Bytes           @db.Binary(64)
-  adminsEventOrganiserId Int?            @map("admins_event_organiser")
+  adminsEventOrganizerId Int?            @map("admins_event_organiser")
   isGlobalAdmin          Boolean         @default(false) @map("is_global_admin")
-  adminsEventOrganiser   EventOrganiser? @relation("admin_usersToevent_organisers", fields: [adminsEventOrganiserId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
+  adminsEventOrganizer   EventOrganizer? @relation("admin_usersToevent_organizers", fields: [adminsEventOrganizerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
   images                 Image[]         @relation("admin_usersToimages")
 
   @@index([email], map: "email_INDEX")
-  @@index([adminsEventOrganiserId], map: "admins_event_organiser")
+  @@index([adminsEventOrganizerId], map: "admins_event_organiser")
   @@map("admin_users")
 }
 
 model Event {
-  id                   Int            @id @default(autoincrement())
-  title                String         @db.Text
-  description          String         @db.Text
-  date                 DateTime       @db.DateTime(0)
-  online               Boolean        @default(dbgenerated("(b'0')")) @db.Bit(1)
-  eventType            String         @default("") @map("event_type") @db.Text
-  venue                String?        @db.Text
-  venueAddress         String?        @db.Text
-  venueData            String?        @db.LongText
-  participationLink    String?        @map("participation_link") @db.Text
-  registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
-  registrationLink     String?        @map("registration_link") @db.Text
-  price                String?        @db.Text
-  image                String         @db.Char(16)
-  clicks               Int            @default(0)
-  organiser            Int
-  eventOrganisers      EventOrganiser @relation("event_organisersToevents", fields: [organiser], references: [id], onUpdate: Restrict, map: "organiser")
+  id                   Int             @id @default(autoincrement())
+  title                String          @db.Text
+  description          String          @db.Text
+  date                 DateTime        @db.DateTime(0)
+  online               Boolean         @default(dbgenerated("(b'0')")) @db.Bit(1)
+  eventType            String          @default("") @map("event_type") @db.Text
+  venue                String?         @db.Text
+  venueAddress         String?         @db.Text
+  venueData            String?         @db.LongText
+  participationLink    String?         @map("participation_link") @db.Text
+  registrationDeadline DateTime?       @map("registration_deadline") @db.DateTime(0)
+  registrationLink     String?         @map("registration_link") @db.Text
+  price                String?         @db.Text
+  image                String          @db.Char(16)
+  clicks               Int             @default(0)
+  organizer            Int             @map("organiser")
+  eventOrganizer       EventOrganizer? @relation("event_organizersToevents", fields: [organizer], references: [id], onUpdate: Restrict, map: "organiser")
 
-  @@index([organiser], map: "organiser_idx")
+  @@index([organizer], map: "organiser_idx")
   @@map("events")
 }
 
-model EventOrganiser {
+model EventOrganizer {
   id              Int         @id @default(autoincrement())
   name            String      @db.Text
   description     String      @db.Text
@@ -62,8 +62,8 @@ model EventOrganiser {
   socialTiktok    String?     @map("social_tiktok") @db.VarChar(250)
   socialYoutube   String?     @map("social_youtube") @db.VarChar(250)
   socialTelegram  String?     @map("social_telegram") @db.VarChar(250)
-  admins          AdminUser[] @relation("admin_usersToevent_organisers")
-  events          Event[]     @relation("event_organisersToevents")
+  admins          AdminUser[] @relation("admin_usersToevent_organizers")
+  events          Event[]     @relation("event_organizersToevents")
 
   @@map("event_organisers")
 }
