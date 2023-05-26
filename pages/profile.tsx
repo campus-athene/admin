@@ -19,12 +19,18 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     authOptions
   );
 
-  const orgaId = Number.parseInt(session?.token.sub || "");
-  if (!orgaId) return { notFound: true };
+  const userId = Number.parseInt(session?.token.sub || "");
+  if (!userId) return { notFound: true };
 
-  const orgaObj = await prisma.eventOrganiser.findUnique({
-    where: { id: orgaId },
-  });
+  const orgaObj = (
+    await prisma.adminUser.findUnique({
+      where: { id: userId },
+      select: {
+        adminsEventOrganiser: true,
+      },
+    })
+  )?.adminsEventOrganiser;
+
   if (!orgaObj) return { notFound: true };
 
   return { props: orgaObj };

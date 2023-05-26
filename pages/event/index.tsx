@@ -59,7 +59,13 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
         date: "desc",
       },
       where: {
-        organiser: userId,
+        eventOrganisers: {
+          admins: {
+            some: {
+              id: userId,
+            },
+          },
+        },
       },
     }),
     prisma.eventOrganiser.findUniqueOrThrow({

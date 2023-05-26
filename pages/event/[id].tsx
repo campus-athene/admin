@@ -14,6 +14,8 @@ import {
 } from "react-bootstrap";
 import FileUpload from "../../components/FileUpload";
 import { RequestBody } from "../api/event";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 type Data =
   | {
@@ -47,11 +49,21 @@ const select = {
   registrationLink: true,
   price: true,
   image: true,
+  organiser: true,
 };
 
 const prisma = new PrismaClient();
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  const userId = Number.parseInt(session?.token.sub || "");
+  if (!userId) return { notFound: true };
+
   const idParam = context.params?.id;
 
   if (idParam === "create") return { props: { create: true } };
@@ -61,7 +73,21 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 
   const event = await prisma.event.findUnique({ select, where: { id } });
 
-  if (!event) return { notFound: true };
+  if (
+    !event ||
+    // Admin is not the organizer of the event.
+    event.organiser !==
+      (
+        await prisma.adminUser.findUnique({
+          where: { id: userId },
+          select: {
+            adminsEventOrganiserId: true,
+          },
+        })
+      )?.adminsEventOrganiserId
+  )
+    return { notFound: true };
+
   return {
     props: {
       ...event,

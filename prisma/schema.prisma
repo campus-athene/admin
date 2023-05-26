@@ -8,13 +8,17 @@ datasource db {
 }
 
 model AdminUser {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique(map: "email_UNIQUE") @db.VarChar(45)
-  password Bytes   @db.Binary(64)
-  salt     Bytes   @db.Binary(64)
-  images   Image[] @relation("admin_usersToimages")
+  id                     Int             @id @default(autoincrement())
+  email                  String          @unique(map: "email_UNIQUE") @db.VarChar(45)
+  password               Bytes           @db.Binary(64)
+  salt                   Bytes           @db.Binary(64)
+  adminsEventOrganiserId Int?            @map("admins_event_organiser")
+  isGlobalAdmin          Boolean         @default(false) @map("is_global_admin")
+  adminsEventOrganiser   EventOrganiser? @relation("admin_usersToevent_organisers", fields: [adminsEventOrganiserId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
+  images                 Image[]         @relation("admin_usersToimages")
 
   @@index([email], map: "email_INDEX")
+  @@index([adminsEventOrganiserId], map: "admins_event_organiser")
   @@map("admin_users")
 }
 
@@ -42,23 +46,24 @@ model Event {
 }
 
 model EventOrganiser {
-  id              Int     @id @default(autoincrement())
-  name            String  @db.Text
-  description     String  @db.Text
-  logoImg         String  @map("logo_img") @db.Char(16)
-  coverImg        String? @map("cover_img") @db.Char(16)
-  eventLimit      Int     @default(10) @map("event_limit")
-  socialWebsite   String? @map("social_website") @db.VarChar(250)
-  socialEmail     String? @map("social_email") @db.VarChar(250)
-  socialPhone     String? @map("social_phone") @db.VarChar(250)
-  socialFacebook  String? @map("social_facebook") @db.VarChar(250)
-  socialInstagram String? @map("social_instagram") @db.VarChar(250)
-  socialTwitter   String? @map("social_twitter") @db.VarChar(250)
-  socialLinkedin  String? @map("social_linkedin") @db.VarChar(250)
-  socialTiktok    String? @map("social_tiktok") @db.VarChar(250)
-  socialYoutube   String? @map("social_youtube") @db.VarChar(250)
-  socialTelegram  String? @map("social_telegram") @db.VarChar(250)
-  events          Event[] @relation("event_organisersToevents")
+  id              Int         @id @default(autoincrement())
+  name            String      @db.Text
+  description     String      @db.Text
+  logoImg         String      @map("logo_img") @db.Char(16)
+  coverImg        String?     @map("cover_img") @db.Char(16)
+  eventLimit      Int         @default(10) @map("event_limit")
+  socialWebsite   String?     @map("social_website") @db.VarChar(250)
+  socialEmail     String?     @map("social_email") @db.VarChar(250)
+  socialPhone     String?     @map("social_phone") @db.VarChar(250)
+  socialFacebook  String?     @map("social_facebook") @db.VarChar(250)
+  socialInstagram String?     @map("social_instagram") @db.VarChar(250)
+  socialTwitter   String?     @map("social_twitter") @db.VarChar(250)
+  socialLinkedin  String?     @map("social_linkedin") @db.VarChar(250)
+  socialTiktok    String?     @map("social_tiktok") @db.VarChar(250)
+  socialYoutube   String?     @map("social_youtube") @db.VarChar(250)
+  socialTelegram  String?     @map("social_telegram") @db.VarChar(250)
+  admins          AdminUser[] @relation("admin_usersToevent_organisers")
+  events          Event[]     @relation("event_organisersToevents")
 
   @@map("event_organisers")
 }

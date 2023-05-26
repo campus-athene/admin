@@ -33,32 +33,36 @@ export default async function handler(
 
   const session = await unstable_getServerSession(req, res, authOptions);
 
-  const organiser = Number.parseInt(session?.token.sub || "");
+  const userId = Number.parseInt(session?.token.sub || "");
 
-  if (!organiser) {
+  if (!userId) {
     res.status(401).end(); // 401 Unauthorized
     return;
   }
 
   const body = req.body as Body;
 
-  await prisma.eventOrganiser.update({
-    where: { id: organiser },
+  await prisma.adminUser.update({
+    where: { id: userId },
     data: {
-      name: body.name,
-      description: body.description,
-      logoImg: body.logoImg,
-      coverImg: body.coverImg,
-      socialWebsite: body.socialWebsite,
-      socialEmail: body.socialEmail,
-      socialPhone: body.socialPhone,
-      socialFacebook: body.socialFacebook,
-      socialInstagram: body.socialInstagram,
-      socialTwitter: body.socialTwitter,
-      socialLinkedin: body.socialLinkedin,
-      socialTiktok: body.socialTiktok,
-      socialYoutube: body.socialYoutube,
-      socialTelegram: body.socialTelegram,
+      adminsEventOrganiser: {
+        update: {
+          name: body.name,
+          description: body.description,
+          logoImg: body.logoImg,
+          coverImg: body.coverImg,
+          socialWebsite: body.socialWebsite,
+          socialEmail: body.socialEmail,
+          socialPhone: body.socialPhone,
+          socialFacebook: body.socialFacebook,
+          socialInstagram: body.socialInstagram,
+          socialTwitter: body.socialTwitter,
+          socialLinkedin: body.socialLinkedin,
+          socialTiktok: body.socialTiktok,
+          socialYoutube: body.socialYoutube,
+          socialTelegram: body.socialTelegram,
+        },
+      },
     },
   });
 

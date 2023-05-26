@@ -38,9 +38,21 @@ export default async function handler(
 ) {
   const session = await unstable_getServerSession(req, res, authOptions);
 
-  const organiser = Number.parseInt(session?.token.sub || "");
+  const userId = Number.parseInt(session?.token.sub || "");
 
-  if (!organiser) {
+  if (!userId) {
+    res.status(401).end(); // 401 Unauthorized
+    return;
+  }
+
+  const organiserId = (
+    await prisma.adminUser.findUnique({
+      where: { id: userId },
+      select: { adminsEventOrganiser: { select: { id: true } } },
+    })
+  )?.adminsEventOrganiser?.id;
+
+  if (!organiserId) {
     res.status(401).end(); // 401 Unauthorized
     return;
   }
@@ -82,7 +94,7 @@ export default async function handler(
         throw new Error("PUT request body must not contain id.");
       const newEvent = await prisma.event.create({
         data: {
-          organiser,
+          organiser: organiserId,
           title: body.title,
           description: body.description,
           date: new Date(body.date),
@@ -113,7 +125,7 @@ export default async function handler(
         return;
       }
       const { count } = await prisma.event.updateMany({
-        where: { id, organiser },
+        where: { id, organiser: organiserId },
         data: {
           title: body.title,
           description: body.description,
@@ -148,7 +160,7 @@ export default async function handler(
         return;
       }
       await prisma.event.deleteMany({
-        where: { id: id, organiser },
+        where: { id: id, organiser: organiserId },
       });
 
       break;

@@ -29,11 +29,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const metaData = await prisma.image.findUnique({
-    select: { mimeType: true, ownerId: true },
+    select: { mimeType: true },
     where: { id },
   });
 
-  if (!metaData || metaData.ownerId !== Number.parseInt(session.token.sub)) {
+  if (!metaData) {
     res.status(404).end(); // 404 Not Found
     return;
   }
