@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
 
   return {
     props: {
-      isGlobalAdmin: true,
+      isGlobalAdmin: adminUser.isGlobalAdmin,
       eventOrganizer: adminUser.adminsEventOrganizer
         ? adminUser.adminsEventOrganizer.name
         : null,
