@@ -4,6 +4,7 @@ import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
 import { Alert, Card, CardGroup, Container } from "react-bootstrap";
 import { authOptions } from "./api/auth/[...nextauth]";
+import Link from "next/link";
 
 const prisma = new PrismaClient();
 
@@ -72,7 +73,8 @@ const Home: NextPage<Data> = (props) => {
           <Alert.Heading>Passwort ändern</Alert.Heading>
           <p>
             Bitte ändere Dein Passwort. Das Standardpasswort ist nicht sicher.
-            Du kannst es in den <a href="/settings">Einstellungen</a> ändern.
+            Du kannst es in den <Link href="/settings">Einstellungen</Link>{" "}
+            ändern.
           </p>
         </Alert>
       )}
