@@ -1,9 +1,18 @@
 import { PrismaClient } from "@prisma/client";
-import { pbkdf2 } from "crypto";
+import { pbkdf2, randomBytes } from "crypto";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const prisma = new PrismaClient();
+
+export const generateSalt = () => randomBytes(64);
+
+export const hashPassword = (password: string, salt: Buffer) =>
+  new Promise<Buffer>((resolve, reject) =>
+    pbkdf2(password, salt, 10000, 64, "sha512", (err, derivedKey) =>
+      err ? reject(err) : resolve(derivedKey)
+    )
+  );
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
@@ -28,16 +37,7 @@ export const authOptions: NextAuthOptions = {
         });
         if (!user) return null;
 
-        const hash = await new Promise<Buffer>((resolve, reject) =>
-          pbkdf2(
-            credentials.password,
-            user.salt,
-            10000,
-            64,
-            "sha512",
-            (err, derivedKey) => (err ? reject(err) : resolve(derivedKey))
-          )
-        );
+        const hash = await hashPassword(credentials.password, user.salt);
         if (!hash.equals(user.password)) return null;
 
         // Await call to make sure the operation will not be cancelled.

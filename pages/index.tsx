@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
-import { Card, CardGroup, Container } from "react-bootstrap";
+import { Alert, Card, CardGroup, Container } from "react-bootstrap";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 const prisma = new PrismaClient();
@@ -10,6 +10,7 @@ const prisma = new PrismaClient();
 type Data = {
   isGlobalAdmin: boolean;
   eventOrganizer: string | null;
+  needsPasswordChange: boolean;
 };
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
@@ -19,7 +20,24 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     authOptions
   );
 
-  if (!session?.token.sub)
+  const adminUser =
+    session?.token.sub &&
+    (await prisma.adminUser.findUnique({
+      where: {
+        id: Number.parseInt(session.token.sub),
+      },
+      select: {
+        isGlobalAdmin: true,
+        adminsEventOrganizer: {
+          select: {
+            name: true,
+          },
+        },
+        lastPasswordChange: true,
+      },
+    }));
+
+  if (!adminUser)
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
@@ -29,34 +47,13 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       },
     };
 
-  const adminUser = await prisma.adminUser.findUnique({
-    where: {
-      id: Number.parseInt(session.token.sub),
-    },
-    select: {
-      isGlobalAdmin: true,
-      adminsEventOrganizer: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-
-  if (!adminUser?.isGlobalAdmin)
-    return {
-      redirect: {
-        destination: "/event",
-        permanent: true,
-      },
-    };
-
   return {
     props: {
       isGlobalAdmin: true,
       eventOrganizer: adminUser.adminsEventOrganizer
         ? adminUser.adminsEventOrganizer.name
         : null,
+      needsPasswordChange: !adminUser.lastPasswordChange,
     },
   };
 };
@@ -69,6 +66,16 @@ const Home: NextPage<Data> = (props) => {
       </Head>
 
       <h1 className="mb-4">Campus Administrations-Portal</h1>
+
+      {props.needsPasswordChange && (
+        <Alert variant="warning">
+          <Alert.Heading>Passwort ändern</Alert.Heading>
+          <p>
+            Bitte ändere Dein Passwort. Das Standardpasswort ist nicht sicher.
+            Du kannst es in den <a href="/settings">Einstellungen</a> ändern.
+          </p>
+        </Alert>
+      )}
 
       {typeof props.eventOrganizer === "string" && (
         <>
