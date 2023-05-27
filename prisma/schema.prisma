@@ -14,6 +14,7 @@ model AdminUser {
   salt                   Bytes           @db.Binary(64)
   adminsEventOrganizerId Int?            @map("admins_event_organiser")
   isGlobalAdmin          Boolean         @default(false) @map("is_global_admin")
+  lastLogin              DateTime?       @map("last_login") @db.Timestamp(0)
   adminsEventOrganizer   EventOrganizer? @relation("admin_usersToevent_organizers", fields: [adminsEventOrganizerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
   images                 Image[]         @relation("admin_usersToimages")
 

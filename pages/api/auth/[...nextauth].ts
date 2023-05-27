@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) return null;
 
         const user = await prisma.adminUser.findUnique({
-          where: { email: credentials?.email.toLowerCase() },
+          where: { email: credentials.email.toLowerCase() },
         });
         if (!user) return null;
 
@@ -39,6 +39,12 @@ export const authOptions: NextAuthOptions = {
           )
         );
         if (!hash.equals(user.password)) return null;
+
+        // Await call to make sure the operation will not be cancelled.
+        await prisma.adminUser.update({
+          data: { lastLogin: new Date() },
+          where: { id: user.id },
+        });
 
         return user;
       },
