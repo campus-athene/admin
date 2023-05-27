@@ -52,27 +52,30 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       },
     };
 
-  const [events, { eventLimit }] = await Promise.all([
-    prisma.event.findMany({
-      select: fieldSelector,
-      orderBy: {
-        date: "desc",
-      },
-      where: {
-        eventOrganizer: {
-          admins: {
-            some: {
-              id: userId,
+  const organiser = (
+    await prisma.adminUser.findUnique({
+      select: {
+        adminsEventOrganizer: {
+          select: {
+            events: {
+              select: fieldSelector,
             },
+            eventLimit: true,
           },
         },
       },
-    }),
-    prisma.eventOrganizer.findUniqueOrThrow({
-      select: { eventLimit: true },
-      where: { id: userId },
-    }),
-  ]);
+      where: {
+        id: userId,
+      },
+    })
+  )?.adminsEventOrganizer;
+
+  if (!organiser)
+    return {
+      notFound: true,
+    };
+
+  const { events, eventLimit } = organiser;
 
   return {
     props: {

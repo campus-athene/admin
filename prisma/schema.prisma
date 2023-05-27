@@ -23,23 +23,23 @@ model AdminUser {
 }
 
 model Event {
-  id                   Int             @id @default(autoincrement())
-  title                String          @db.Text
-  description          String          @db.Text
-  date                 DateTime        @db.DateTime(0)
-  online               Boolean         @default(dbgenerated("(b'0')")) @db.Bit(1)
-  eventType            String          @default("") @map("event_type") @db.Text
-  venue                String?         @db.Text
-  venueAddress         String?         @db.Text
-  venueData            String?         @db.LongText
-  participationLink    String?         @map("participation_link") @db.Text
-  registrationDeadline DateTime?       @map("registration_deadline") @db.DateTime(0)
-  registrationLink     String?         @map("registration_link") @db.Text
-  price                String?         @db.Text
-  image                String          @db.Char(16)
-  clicks               Int             @default(0)
-  organizer            Int             @map("organiser")
-  eventOrganizer       EventOrganizer? @relation("event_organizersToevents", fields: [organizer], references: [id], onUpdate: Restrict, map: "organiser")
+  id                   Int            @id @default(autoincrement())
+  title                String         @db.Text
+  description          String         @db.Text
+  date                 DateTime       @db.DateTime(0)
+  online               Boolean        @default(dbgenerated("(b'0')")) @db.Bit(1)
+  eventType            String         @default("") @map("event_type") @db.Text
+  venue                String?        @db.Text
+  venueAddress         String?        @db.Text
+  venueData            String?        @db.LongText
+  participationLink    String?        @map("participation_link") @db.Text
+  registrationDeadline DateTime?      @map("registration_deadline") @db.DateTime(0)
+  registrationLink     String?        @map("registration_link") @db.Text
+  price                String?        @db.Text
+  image                String         @db.Char(16)
+  clicks               Int            @default(0)
+  organizer            Int            @map("organiser")
+  eventOrganizer       EventOrganizer @relation("event_organizersToevents", fields: [organizer], references: [id], onUpdate: Restrict, map: "organiser")
 
   @@index([organizer], map: "organiser_idx")
   @@map("events")

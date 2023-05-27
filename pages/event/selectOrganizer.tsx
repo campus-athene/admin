@@ -50,7 +50,6 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     Number.parseInt(context.query.organizerId);
 
   if (setOrganizerId) {
-    console.log(`Setting organizerId to ${setOrganizerId} for user ${userId}`);
     await prisma.adminUser.update({
       where: {
         id: userId,
