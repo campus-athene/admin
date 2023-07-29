@@ -16,7 +16,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions,
   );
 
   const userId = Number.parseInt(session?.token.sub || "");
@@ -78,7 +78,7 @@ const ProfilePage: NextPage<Data> = (data) => {
       setError(
         res.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
           ? await res.text()
-          : "Ein unbekannter Fehler ist aufgetreten."
+          : "Ein unbekannter Fehler ist aufgetreten.",
       );
   };
 

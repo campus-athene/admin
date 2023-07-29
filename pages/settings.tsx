@@ -35,7 +35,7 @@ const SettingsPage: NextPage = () => {
       alert(
         res.headers.get("Content-Length")?.match(/^[1-9][0-9]*$/)
           ? (await res.json()).error
-          : "Ein unbekannter Fehler ist aufgetreten."
+          : "Ein unbekannter Fehler ist aufgetreten.",
       );
   };
 

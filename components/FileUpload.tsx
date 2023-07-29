@@ -55,7 +55,7 @@ const FileUpload = (props: {
 
     if (!id) {
       alert(
-        "Die Datei konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut."
+        "Die Datei konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
       );
       return;
     }

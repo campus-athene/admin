@@ -18,7 +18,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions,
   );
 
   const adminUser =
@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          context.resolvedUrl
+          context.resolvedUrl,
         )}`,
         permanent: false,
       },

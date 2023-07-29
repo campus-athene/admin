@@ -58,7 +58,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions,
   );
 
   const userId = Number.parseInt(session?.token.sub || "");
@@ -106,21 +106,21 @@ const EventPage: NextPage<Data> = (data) => {
   const [formHasValidated, setFormHasValidated] = useState(false);
   const [isFree, setIsFree] = useState(data.create ? false : !data.price);
   const [needsRegistration, setNeedsRegsitration] = useState(
-    data.create ? false : !!data.registrationLink
+    data.create ? false : !!data.registrationLink,
   );
   const [regLinkType, setRegLinkType] = useState<"email" | "weblink">(
     data.create || !data.registrationLink?.startsWith("mailto:")
       ? "weblink"
-      : "email"
+      : "email",
   );
   const [hasRegDeadline, setHasRegDeadline] = useState(
-    data.create ? false : !!data.registrationDeadline
+    data.create ? false : !!data.registrationDeadline,
   );
   const [venueType, setVenueType] = useState<"online" | "presence">(
-    data.create || !data.online ? "presence" : "online"
+    data.create || !data.online ? "presence" : "online",
   );
   const [image, setImage] = useState<string | null>(
-    data.create ? null : data.image
+    data.create ? null : data.image,
   );
   const [error, setError] = useState<string | null>(null);
 

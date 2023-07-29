@@ -54,7 +54,7 @@ const handler: NextApiHandler = async (req, res) => {
   }
 
   const passwordCorrect = (await hashPassword(oldPassword, user.salt)).equals(
-    user.password
+    user.password,
   );
 
   if (!passwordCorrect) {

@@ -10,8 +10,8 @@ export const generateSalt = () => randomBytes(64);
 export const hashPassword = (password: string, salt: Buffer) =>
   new Promise<Buffer>((resolve, reject) =>
     pbkdf2(password, salt, 10000, 64, "sha512", (err, derivedKey) =>
-      err ? reject(err) : resolve(derivedKey)
-    )
+      err ? reject(err) : resolve(derivedKey),
+    ),
   );
 
 export const authOptions: NextAuthOptions = {

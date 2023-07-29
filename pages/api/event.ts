@@ -34,7 +34,7 @@ export type ResponseBody = { id: number } | { error: string };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseBody>
+  res: NextApiResponse<ResponseBody>,
 ) {
   const session = await unstable_getServerSession(req, res, authOptions);
 
@@ -82,7 +82,7 @@ export default async function handler(
 
     if (geocodeResponse.data.results.length !== 1)
       console.warn(
-        `Geocoding returned ${geocodeResponse.data.results.length} results.'`
+        `Geocoding returned ${geocodeResponse.data.results.length} results.'`,
       );
 
     venueData = JSON.stringify(geocodeResponse.data.results[0]);

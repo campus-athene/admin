@@ -15,7 +15,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
-    authOptions
+    authOptions,
   );
 
   const userId = Number.parseInt(session?.token.sub || "");
@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          context.resolvedUrl
+          context.resolvedUrl,
         )}`,
         permanent: false,
       },
@@ -79,7 +79,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
           organizers.map((organizer) => ({
             ...organizer,
             selected: organizer.id === user.adminsEventOrganizerId,
-          }))
+          })),
         ),
     },
   };

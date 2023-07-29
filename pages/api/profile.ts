@@ -24,7 +24,7 @@ export type Body = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<never>
+  res: NextApiResponse<never>,
 ) {
   if (req.method !== "POST") {
     res.status(405).end(); // 405 Method Not Allowed
