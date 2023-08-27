@@ -8,16 +8,17 @@ datasource db {
 }
 
 model AdminUser {
-  id                     Int             @id @default(autoincrement())
-  email                  String          @unique(map: "email_UNIQUE") @db.VarChar(45)
-  password               Bytes           @db.Binary(64)
-  salt                   Bytes           @db.Binary(64)
-  adminsEventOrganizerId Int?            @map("admins_event_organiser")
-  isGlobalAdmin          Boolean         @default(false) @map("is_global_admin")
-  lastLogin              DateTime?       @map("last_login") @db.Timestamp(0)
-  lastPasswordChange     DateTime?       @map("last_password_change") @db.Timestamp(0)
-  adminsEventOrganizer   EventOrganizer? @relation("admin_usersToevent_organizers", fields: [adminsEventOrganizerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
-  images                 Image[]         @relation("admin_usersToimages")
+  id                     Int              @id @default(autoincrement())
+  email                  String           @unique(map: "email_UNIQUE") @db.VarChar(45)
+  password               Bytes            @db.Binary(64)
+  salt                   Bytes            @db.Binary(64)
+  adminsEventOrganizerId Int?             @map("admins_event_organiser")
+  isGlobalAdmin          Boolean          @default(false) @map("is_global_admin")
+  lastLogin              DateTime?        @map("last_login") @db.Timestamp(0)
+  lastPasswordChange     DateTime?        @map("last_password_change") @db.Timestamp(0)
+  roles                  AdminUserRoles[]
+  adminsEventOrganizer   EventOrganizer?  @relation("admin_usersToevent_organizers", fields: [adminsEventOrganizerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_event_organiser")
+  images                 Image[]          @relation("admin_usersToimages")
 
   @@index([email], map: "email_INDEX")
   @@index([adminsEventOrganizerId], map: "admins_event_organiser")
@@ -71,12 +72,41 @@ model EventOrganizer {
 }
 
 model Image {
-  id          String    @id @db.Char(16)
-  mimeType    String    @map("mime_type") @db.VarChar(150)
-  ownerId     Int       @map("owner")
-  dateCreated DateTime  @default(now()) @map("date_created") @db.Timestamp(0)
-  owner       AdminUser @relation("admin_usersToimages", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "owner")
+  id                      String       @id @db.Char(16)
+  mimeType                String       @map("mime_type") @db.VarChar(150)
+  ownerId                 Int          @map("owner")
+  dateCreated             DateTime     @default(now()) @map("date_created") @db.Timestamp(0)
+  owner                   AdminUser    @relation("admin_usersToimages", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "owner")
+  usedAsInfoScreenMediaDe InfoScreen[] @relation("info_screens_media_deToimages")
+  usedAsInfoScreenMediaEn InfoScreen[] @relation("info_screens_media_enToimages")
 
   @@index([ownerId], map: "owner_idx")
   @@map("images")
+}
+
+model InfoScreen {
+  id             Int       @id @default(autoincrement())
+  comment        String    @db.Text
+  position       Float     @db.Float
+  campaignStart  DateTime? @map("campaign_start") @db.DateTime(0)
+  campaignEnd    DateTime? @map("campaign_end") @db.DateTime(0)
+  mediaDeId      String?   @map("media_de") @db.Char(16)
+  mediaEnId      String?   @map("media_en") @db.Char(16)
+  externalLinkDe String?   @map("external_link_de") @db.Text
+  externalLinkEn String?   @map("external_link_en") @db.Text
+  mediaDe        Image?    @relation("info_screens_media_deToimages", fields: [mediaDeId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "info_screens_ibfk_1")
+  mediaEn        Image?    @relation("info_screens_media_enToimages", fields: [mediaEnId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "info_screens_ibfk_2")
+
+  @@index([mediaDeId], map: "media_de")
+  @@index([mediaEnId], map: "media_en")
+  @@map("info_screens")
+}
+
+model AdminUserRoles {
+  userId Int       @map("user")
+  role   String    @db.VarChar(45)
+  user   AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "admin_user_roles_ibfk_1")
+
+  @@id([userId, role])
+  @@map("admin_user_roles")
 }

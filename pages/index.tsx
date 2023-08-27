@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 type Data = {
   isGlobalAdmin: boolean;
   eventOrganizer: string | null;
+  isInfoScreenEditor: boolean;
   needsPasswordChange: boolean;
 };
 
@@ -31,6 +32,11 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
           },
         },
         lastPasswordChange: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
       },
     }));
 
@@ -50,6 +56,9 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
       eventOrganizer: adminUser.adminsEventOrganizer
         ? adminUser.adminsEventOrganizer.name
         : null,
+      isInfoScreenEditor: adminUser.roles.some((r) =>
+        ["INFO_SCREEN_EDITOR", "GLOBAL_ADMIN"].includes(r.role),
+      ),
       needsPasswordChange: !adminUser.lastPasswordChange,
     },
   };
@@ -94,6 +103,22 @@ const Home: NextPage<Data> = (props) => {
                 <Card.Title>Veranstalterprofil &rarr;</Card.Title>
                 <Card.Link href="/profile">
                   Veranstalterprofil bearbeiten
+                </Card.Link>
+              </Card.Body>
+            </Card>
+          </CardGroup>
+        </>
+      )}
+
+      {props.isInfoScreenEditor && (
+        <>
+          <h3>Info-Screens</h3>
+          <CardGroup className="mb-4">
+            <Card>
+              <Card.Body>
+                <Card.Title>Info-Screens &rarr;</Card.Title>
+                <Card.Link href="/infoscreen">
+                  Info-Screens einsehen, erstellen und bearbeiten.
                 </Card.Link>
               </Card.Body>
             </Card>
