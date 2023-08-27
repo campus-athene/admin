@@ -28,8 +28,7 @@ const Root = ({ Component, pageProps }: AppProps) => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="/event">Veranstaltungen</Nav.Link>
-              <Nav.Link href="/profile">Profil</Nav.Link>
+              <Nav.Link href="/">Start</Nav.Link>
               <Nav.Link href="/settings">Einstellungen</Nav.Link>
               <Nav.Link href="https://www.study-campus.de/legal.html">
                 Impressum

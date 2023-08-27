@@ -2,6 +2,11 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { FormEventHandler } from "react";
 import { Container } from "react-bootstrap";
+import { getServerSidePropsWithAuth } from "../common/authHelper";
+
+export const getServerSideProps = getServerSidePropsWithAuth({}, async () => ({
+  props: {},
+}));
 
 const SettingsPage: NextPage = () => {
   const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import Head from "next/head";
 import Link from "next/link";
 import { Alert, Card, CardGroup, Container } from "react-bootstrap";
+import { getGetServerSidePropsLoginRedirect } from "../common/authHelper";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 const prisma = new PrismaClient();
@@ -41,14 +42,7 @@ export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
     }));
 
   if (!adminUser)
-    return {
-      redirect: {
-        destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          context.resolvedUrl,
-        )}`,
-        permanent: false,
-      },
-    };
+    return getGetServerSidePropsLoginRedirect(context.resolvedUrl);
 
   return {
     props: {

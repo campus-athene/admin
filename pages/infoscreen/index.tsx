@@ -5,6 +5,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Button, Container, Table } from "react-bootstrap";
+import { Role, getServerSidePropsWithAuth } from "../../common/authHelper";
 
 type Data = {
   infoScreens: {
@@ -18,45 +19,48 @@ type Data = {
 
 const prisma = new PrismaClient();
 
-export async function getServerSideProps(): Promise<{ props: Data }> {
-  const infoScreens = await prisma.infoScreen.findMany({
-    where: {
-      OR: [
-        {
-          campaignEnd: {
-            gt: moment().toDate(),
+export const getServerSideProps = getServerSidePropsWithAuth<Data>(
+  { role: Role.InfosScreenEditor },
+  async () => {
+    const infoScreens = await prisma.infoScreen.findMany({
+      where: {
+        OR: [
+          {
+            campaignEnd: {
+              gt: moment().toDate(),
+            },
           },
-        },
-        {
-          campaignEnd: null,
-        },
-      ],
-    },
-    orderBy: {
-      position: "asc",
-    },
-    select: {
-      id: true,
-      comment: true,
-      campaignStart: true,
-      campaignEnd: true,
-      mediaDeId: true,
-      mediaEnId: true,
-    },
-  });
+          {
+            campaignEnd: null,
+          },
+        ],
+      },
+      orderBy: {
+        position: "asc",
+      },
+      select: {
+        id: true,
+        comment: true,
+        campaignStart: true,
+        campaignEnd: true,
+        mediaDeId: true,
+        mediaEnId: true,
+      },
+    });
 
-  return {
-    props: {
-      infoScreens: infoScreens.map((infoScreen) => ({
-        id: infoScreen.id,
-        comment: infoScreen.comment,
-        campaignStart: infoScreen.campaignStart?.getTime() ?? null,
-        campaignEnd: infoScreen.campaignEnd?.getTime() ?? null,
-        media: infoScreen.mediaDeId || (infoScreen.mediaEnId as string),
-      })),
-    },
-  };
-}
+    return {
+      props: {
+        infoScreens: infoScreens.map((infoScreen) => ({
+          id: infoScreen.id,
+          comment: infoScreen.comment,
+          campaignStart: infoScreen.campaignStart?.getTime() ?? null,
+          campaignEnd: infoScreen.campaignEnd?.getTime() ?? null,
+          media: infoScreen.mediaDeId || (infoScreen.mediaEnId as string),
+        })),
+      },
+    };
+  },
+);
 
 const InfoScreenPage: NextPage<Data> = (data) => {
   const router = useRouter();

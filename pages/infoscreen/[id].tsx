@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import moment from "moment";
-import { GetStaticProps, NextPage } from "next";
+import { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Role, getServerSidePropsWithAuth } from "../../common/authHelper";
 import FileUpload from "../../components/FileUpload";
 import { RequestBody } from "../api/infoscreen";
 
@@ -23,54 +24,57 @@ type Data = {
 
 const prisma = new PrismaClient();
 
-export const getServerSideProps: GetStaticProps<Data> = async (context) => {
-  const idString = context.params?.id;
+export const getServerSideProps = getServerSidePropsWithAuth<Data>(
+  { role: Role.InfosScreenEditor },
+  async (context) => {
+    const idString = context.params?.id;
 
-  if (idString === "create") {
+    if (idString === "create") {
+      return {
+        props: {
+          infoScreen: null,
+        },
+      };
+    }
+
+    const id = typeof idString === "string" ? parseInt(idString) : null;
+
+    const infoScreen =
+      id && Number.isInteger(id)
+        ? await prisma.infoScreen.findUnique({
+            where: {
+              id,
+            },
+          })
+        : null;
+
+    if (!infoScreen) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
       props: {
-        infoScreen: null,
+        infoScreen: {
+          id: infoScreen.id,
+          comment: infoScreen.comment,
+          position: infoScreen.position,
+          campaignStart: infoScreen.campaignStart
+            ? infoScreen.campaignStart.getTime()
+            : null,
+          campaignEnd: infoScreen.campaignEnd
+            ? infoScreen.campaignEnd.getTime()
+            : null,
+          mediaDe: infoScreen.mediaDeId,
+          mediaEn: infoScreen.mediaEnId,
+          externalLinkDe: infoScreen.externalLinkDe,
+          externalLinkEn: infoScreen.externalLinkEn,
+        },
       },
     };
-  }
-
-  const id = typeof idString === "string" ? parseInt(idString) : null;
-
-  const infoScreen =
-    id && Number.isInteger(id)
-      ? await prisma.infoScreen.findUnique({
-          where: {
-            id,
-          },
-        })
-      : null;
-
-  if (!infoScreen) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      infoScreen: {
-        id: infoScreen.id,
-        comment: infoScreen.comment,
-        position: infoScreen.position,
-        campaignStart: infoScreen.campaignStart
-          ? infoScreen.campaignStart.getTime()
-          : null,
-        campaignEnd: infoScreen.campaignEnd
-          ? infoScreen.campaignEnd.getTime()
-          : null,
-        mediaDe: infoScreen.mediaDeId,
-        mediaEn: infoScreen.mediaEnId,
-        externalLinkDe: infoScreen.externalLinkDe,
-        externalLinkEn: infoScreen.externalLinkEn,
-      },
-    },
-  };
-};
+  },
+);
 
 const InfoScreenPage: NextPage<Data> = (data) => {
   const [mediaDe, setMediaDe] = useState<string | undefined>(
