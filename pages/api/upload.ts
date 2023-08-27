@@ -12,6 +12,8 @@ if (!process.env.STORAGE_URL) throw new Error("STORAGE_URL was not specified.");
 
 const webdav = createClient(process.env.STORAGE_URL, {
   maxBodyLength: 1024 * 1024 * 10,
+  username: process.env.STORAGE_USERNAME,
+  password: process.env.STORAGE_PASSWORD,
 });
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
