@@ -1,9 +1,9 @@
 import { EventOrganizer, PrismaClient } from "@prisma/client";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]";
 import { GetServerSideProps, NextPage } from "next";
-import { Button, Container, Table } from "react-bootstrap";
+import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
+import { Button, Container, Table } from "react-bootstrap";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 const prisma = new PrismaClient();
 

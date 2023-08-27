@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import moment, { utc } from "moment";
 import { GetServerSideProps, NextPage } from "next";
+import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FormEventHandler, useState } from "react";
@@ -13,9 +14,8 @@ import {
   ToggleButtonGroup,
 } from "react-bootstrap";
 import FileUpload from "../../components/FileUpload";
-import { RequestBody } from "../api/event";
-import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
+import { RequestBody } from "../api/event";
 
 type Data =
   | {

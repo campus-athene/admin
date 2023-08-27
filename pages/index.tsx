@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import Head from "next/head";
+import Link from "next/link";
 import { Alert, Card, CardGroup, Container } from "react-bootstrap";
 import { authOptions } from "./api/auth/[...nextauth]";
-import Link from "next/link";
 
 const prisma = new PrismaClient();
 
