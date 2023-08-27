@@ -1,6 +1,6 @@
 import { EventOrganizer, PrismaClient } from "@prisma/client";
 import { GetServerSideProps, NextPage } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import Head from "next/head";
 import { Button, Container, Table } from "react-bootstrap";
 import { authOptions } from "../api/auth/[...nextauth]";
@@ -12,11 +12,7 @@ type Data = {
 };
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions,
-  );
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   const userId = Number.parseInt(session?.token.sub || "");
 

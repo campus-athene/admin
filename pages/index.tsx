@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import Head from "next/head";
 import Link from "next/link";
 import { Alert, Card, CardGroup, Container } from "react-bootstrap";
@@ -15,11 +15,7 @@ type Data = {
 };
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions,
-  );
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   const adminUser =
     session?.token.sub &&

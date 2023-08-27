@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse, PageConfig } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { join } from "path/posix";
 import { createClient } from "webdav";
 import { authOptions } from "../auth/[...nextauth]";
@@ -14,7 +14,7 @@ const webdav = createClient(process.env.STORAGE_URL, {
 });
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session?.token.sub) {
     res.status(401).end(); // 401 Unauthorized

@@ -1,5 +1,5 @@
 import { NextApiHandler } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions, generateSalt, hashPassword } from "./auth/[...nextauth]";
 
 import { PrismaClient } from "@prisma/client";
@@ -7,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const handler: NextApiHandler = async (req, res) => {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
     res.status(401).json({ error: "Unauthorized" });

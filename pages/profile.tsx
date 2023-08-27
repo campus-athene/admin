@@ -1,6 +1,6 @@
 import { EventOrganizer, PrismaClient } from "@prisma/client";
 import { GetServerSideProps, NextPage } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import Head from "next/head";
 import { FormEventHandler, useState } from "react";
 import { Alert, Button, Container, Form } from "react-bootstrap";
@@ -13,11 +13,7 @@ type Data = EventOrganizer;
 const prisma = new PrismaClient();
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions,
-  );
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   const userId = Number.parseInt(session?.token.sub || "");
   if (!userId) return { notFound: true };

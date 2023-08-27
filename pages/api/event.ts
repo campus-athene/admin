@@ -1,7 +1,7 @@
 import { Client } from "@googlemaps/google-maps-services-js";
 import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 
 if (!process.env.GCP_API_KEY)
@@ -36,7 +36,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseBody>,
 ) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
   const userId = Number.parseInt(session?.token.sub || "");
 

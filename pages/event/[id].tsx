@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import moment, { utc } from "moment";
 import { GetServerSideProps, NextPage } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FormEventHandler, useState } from "react";
@@ -55,11 +55,7 @@ const select = {
 const prisma = new PrismaClient();
 
 export const getServerSideProps: GetServerSideProps<Data> = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions,
-  );
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   const userId = Number.parseInt(session?.token.sub || "");
   if (!userId) return { notFound: true };
